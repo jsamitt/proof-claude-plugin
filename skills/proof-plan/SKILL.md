@@ -116,12 +116,12 @@ One view, in this order, per `_partials/voice.md`:
 
 ```
 In flight — finish these first
-  #14  Hint carry-over — In Review; needs your simulator check
+  #14  Freeze carry-over — In Review; needs your simulator check
 
 Next up
-  1. #22  Crash on an empty profile — P1, and it blocks #23
-  2. #19  Can sounds play offline? — needs investigation; the answer reshapes #20 and #21
-  3. #23  Parent insights — P1, once #22 is done
+  1. #22  Crash on a habit with no entries — P1, and it blocks #23
+  2. #19  Can reminders fire offline? — needs investigation; the answer reshapes #20 and #21
+  3. #23  Weekly summary email — P1, once #22 is done
 
 Needs your call
   a. #17  P2 → P3 — #12 shipped and covers most of it

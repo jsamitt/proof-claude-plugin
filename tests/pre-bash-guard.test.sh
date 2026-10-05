@@ -52,16 +52,16 @@ ASK	git restore .
 ASK	git branch -D feat/old
 # --- must pass: everyday work
 PASS	cd mobile && npm test
-PASS	git push -u origin feat/14-hints
+PASS	git push -u origin feat/14-freezes
 PASS	git checkout main
-PASS	git checkout -b feat/14-hints
+PASS	git checkout -b feat/14-freezes
 PASS	git checkout src/app/home.jsx
 PASS	git restore --staged .
 PASS	git branch -d merged-branch
 PASS	rm -rf web/build
 PASS	cd web && railway up
 PASS	cd mobile && eas build --platform ios
-PASS	supabase migration new add_hints
+PASS	supabase migration new add_freezes
 PASS	supabase db diff
 PASS	psql -c "SELECT * FROM words LIMIT 5"
 PASS	psql -c "DELETE FROM sessions WHERE expires_at < now()"

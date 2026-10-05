@@ -43,7 +43,7 @@ confirm in a word. Cover, in order:
    store compliance, anything irreversible. This answer does more for review quality
    than anything else in the config.
 5. **Goals** — two to four things the project is trying to achieve right now, in plain
-   words (*"Pass App Store review"*, *"Grow Plus sign-ups"*). Every priority rating will
+   words (*"Pass App Store review"*, *"Grow Pro sign-ups"*). Every priority rating will
    name the goal it serves, so these are worth a minute. Skip if the user has none yet;
    never invent them.
 6. **Changelog and version** — if the repo has a changelog or a version file, confirm

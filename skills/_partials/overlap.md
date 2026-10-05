@@ -57,9 +57,9 @@ Before we spec this, it touches three things already on record:
 
 | | Existing | Relationship | Recommend |
 |---|---|---|---|
-| a | #12 Hint count per level (Ready to Dev) | Overlaps — both change when hints reset | Fold #12 into this spec and close it as a duplicate |
-| b | #19 Unlimited hints for Plus (Backlog) | Contradicts — #19 removes the per-level limit this relies on | Decide now: keep the limit and update #19, or drop it here |
-| c | Decision: "Hints cost a star, minimum 1" | Contradicts — this would let a level end at 0 stars | Keep the decision; change the criterion |
+| a | #12 Freeze count per week (Ready to Dev) | Overlaps — both change when freezes reset | Fold #12 into this spec and close it as a duplicate |
+| b | #19 Unlimited freezes for Pro (Backlog) | Contradicts — #19 removes the weekly limit this relies on | Decide now: keep the limit and update #19, or drop it here |
+| c | Decision: "A freeze covers one missed day, never two" | Contradicts — this would let one freeze cover a whole weekend | Keep the decision; change the criterion |
 
 Which way on each? ("a, b: update #19, c" — or tell me what you would do differently)
 ```

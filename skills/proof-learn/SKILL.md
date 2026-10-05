@@ -12,7 +12,7 @@ the shower, a lesson from something that broke.
 ```
 /proof-learn                   # sweep THIS session for anything worth keeping
 /proof-learn "draft orders silently drop when a user signs out"
-/proof-learn --search hints
+/proof-learn --search freezes
 /proof-learn --promote 14      # promote an issue's learnings to the decisions file
 /proof-learn --review          # what is recorded, what should be promoted, what should be pruned
 ```
@@ -73,7 +73,7 @@ From this session:
 
 | # | Candidate | Source | Verdict |
 |---|-----------|--------|---------|
-| 1 | SecureStore writes >2KB no-op in Expo Go, succeed in a dev build | 40min debugging the profile switch | Durable — passes all four |
+| 1 | SecureStore writes >2KB no-op in Expo Go, succeed in a dev build | 40min debugging the account switch | Durable — passes all four |
 | 2 | Chose per-level AsyncStorage keys over one blob; one corrupt entry would lose everything | plan discussion | Durable — passes all four |
 | 3 | patch-package step must run before the iOS build | build failure | Issue comment — fails Q3, it is in the postinstall script |
 

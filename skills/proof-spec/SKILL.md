@@ -15,7 +15,7 @@ and no flag to pass — you are asked at the end, once the draft exists and the 
 is an informed one.
 
 ```
-/proof-spec "hints should carry over between levels"
+/proof-spec "unused streak freezes should carry over to next week"
 /proof-spec 14            # spec an issue that already exists
 /proof-spec d/7           # pick up Discussion #7 and finish it
 /proof-spec 14 <link>     # attach a design made elsewhere to issue #14
@@ -57,7 +57,7 @@ changes to other issues happen in step 10, when this one is created.
 ## 2. Ground first
 
 Read the actual files this would touch before asking anything. Grounded questions
-("the tutorial flag is stored per-profile and globally — which should this follow?")
+("the reminder time is stored per habit and per account — which should this follow?")
 are worth ten generic ones. Bring what you found into the conversation.
 
 ## 3. Explore
@@ -111,12 +111,12 @@ observable and checkable — a thing you could watch happen, not a quality you c
 argue about.
 
 ```
-- [ ] Using a hint on the last word of a level still leaves the level at minimum 1 star
-- [ ] Hint count resets when a level is replayed from the level-select screen
-- [ ] Free users see the upgrade prompt on the second hint of a level; Plus users never do
+- [ ] An unused freeze from last week is still available on Monday, up to a maximum of two
+- [ ] Using a freeze on a missed day keeps the streak count unchanged, not increased
+- [ ] Free users see the upgrade prompt on their third freeze of a week; Pro users never do
 ```
 
-Not: "hints work correctly", "good UX", "performance is acceptable".
+Not: "freezes work correctly", "good UX", "performance is acceptable".
 
 Also state **out of scope** explicitly. It is the half people skip and the half that
 stops the build wandering.
@@ -136,7 +136,7 @@ one reply.
 
 Name the goal the work serves, from `goals` — or say plainly that it serves none.
 You have just spent the conversation on this problem, so the reasons should be specific
-to it — *"parents asked for it in reviews"*, not *"users would find this helpful"*. If a
+to it — *"users asked for it in reviews"*, not *"users would find this helpful"*. If a
 rating is a guess, say so; that is what the confidence rating is for.
 
 If the table lands on **Reconsider**, say so directly: this may not be worth building.
@@ -236,8 +236,8 @@ of maybes is one nobody looks at.
 
 ## 10a. Create the issue (if that is the answer)
 
-Title as a capability, not a task ("Hints carry over between levels", not "Add hint
-carry-over"). Body:
+Title as a capability, not a task ("Unused freezes carry over to next week", not "Add
+freeze carry-over"). Body:
 
 ```markdown
 ## Problem

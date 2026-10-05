@@ -62,11 +62,11 @@ proposal, it is an assumption.
 
 1. **Would it change a future decision?**
    If knowing it would not change what you do next time, it is trivia. *"We used a
-   Map here"* — no. *"Keying by profile id, because a single blob loses every level's
-   progress when one entry corrupts"* — yes.
+   Map here"* — no. *"Keying by habit id, because a single blob loses every habit's
+   history when one entry corrupts"* — yes.
 
 2. **Is it still true once this issue ships?**
-   Anything about the state of in-flight work is not durable. *"The hint counter is not
+   Anything about the state of in-flight work is not durable. *"The freeze counter is not
    wired up yet"* expires the moment it is.
 
 3. **Could someone read it off the code in under a minute?**
