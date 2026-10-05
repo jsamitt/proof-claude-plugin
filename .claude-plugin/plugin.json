@@ -1,0 +1,18 @@
+{
+  "name": "proof",
+  "version": "0.6.0",
+  "description": "A lean development harness for solo builders: spec -> build -> review -> ship, with a running record of decisions and learnings. Project-agnostic; every project fact is read from .claude/harness.json, never baked into a skill.",
+  "author": {
+    "name": "Proof"
+  },
+  "homepage": "https://github.com/jsamitt/proof-claude-plugin",
+  "repository": "https://github.com/jsamitt/proof-claude-plugin",
+  "license": "UNLICENSED",
+  "keywords": [
+    "workflow",
+    "solo",
+    "lifecycle",
+    "github-projects",
+    "code-review"
+  ]
+}

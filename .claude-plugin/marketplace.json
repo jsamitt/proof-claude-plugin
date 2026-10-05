@@ -1,0 +1,21 @@
+{
+  "name": "proof",
+  "description": "Proof - a lean solo-builder development harness for Claude Code.",
+  "owner": {
+    "name": "Proof"
+  },
+  "plugins": [
+    {
+      "name": "proof",
+      "source": "./",
+      "description": "Spec -> build -> review -> ship, with a running record of decisions. Configured per project.",
+      "version": "0.6.0",
+      "keywords": [
+        "workflow",
+        "solo",
+        "lifecycle"
+      ]
+    }
+  ],
+  "version": "0.6.0"
+}

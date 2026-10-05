@@ -1,0 +1,85 @@
+{
+  "$schema": "proof/harness-config@1",
+  "project": {
+    "name": "<Project name>",
+    "summary": "<One sentence: what this is and who it is for>",
+    "docs": [
+      "CLAUDE.md"
+    ]
+  },
+  "goals": [],
+  "commands": {
+    "test": null,
+    "typecheck": null,
+    "lint": null,
+    "build": null,
+    "run": null
+  },
+  "verify": {
+    "on_stop": false,
+    "steps": [
+      "test",
+      "typecheck"
+    ],
+    "manual": []
+  },
+  "board": {
+    "enabled": true,
+    "name": "<Project board title>",
+    "field": "Status",
+    "stages": {
+      "backlog": "Backlog",
+      "spec_draft": "Spec Draft",
+      "ready": "Ready to Dev",
+      "in_dev": "In Dev",
+      "in_review": "In Review",
+      "shipped": "Shipped"
+    }
+  },
+  "labels": {
+    "ready": "ready-to-dev",
+    "in_progress": "in-progress",
+    "discovered": "discovered",
+    "blocked": "blocked",
+    "p1": "P1",
+    "p2": "P2",
+    "p3": "P3",
+    "investigate": "needs-investigation"
+  },
+  "voice": {
+    "audience": null
+  },
+  "review": {
+    "lenses": [
+      "correctness",
+      "breaker",
+      "risk"
+    ],
+    "risk_focus": []
+  },
+  "design": {
+    "tokens": null,
+    "reference": null,
+    "platform": null,
+    "rules": []
+  },
+  "ship": {
+    "preflight": [],
+    "steps": [],
+    "version_files": [],
+    "changelog": null,
+    "store_notes": false
+  },
+  "learnings": {
+    "file": "DECISIONS.md"
+  },
+  "protected_paths": [
+    "**/.env*",
+    "**/*.pem",
+    "**/*.key"
+  ],
+  "branch": {
+    "base": "main",
+    "prefix": "feat/"
+  }
+}
