@@ -83,11 +83,11 @@ in the same step; an issue with two P-labels is worse than one with none.
 
 | | Rating | Why |
 |---|---|---|
-| Value | High | Parents asked for it in reviews; supports Plus sign-ups |
+| Value | High | Users asked for it in reviews; supports Pro sign-ups |
 | Effort | Medium | Mostly design — two new screens; engineering is small |
-| Confidence | High | Close to the existing hint flow |
+| Confidence | High | Close to the existing freeze flow |
 
-**Serves:** Grow Plus sign-ups
+**Serves:** Grow Pro sign-ups
 ```
 
 **When a rating changes**, update the label and the table together, and add a dated line

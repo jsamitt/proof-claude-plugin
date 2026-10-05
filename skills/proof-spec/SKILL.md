@@ -15,13 +15,13 @@ and no flag to pass — you are asked at the end, once the draft exists and the 
 is an informed one.
 
 ```
-/proof-spec "hints should carry over between levels"
+/proof-spec "unused streak freezes should carry over to next week"
 /proof-spec 14            # spec an issue that already exists
 /proof-spec d/7           # pick up Discussion #7 and finish it
 ```
 
 Read `_partials/config.md`, `_partials/voice.md`, `_partials/priority.md` and
-`_partials/overlap.md` first. Then `project.docs` and any `learnings.file` entries
+`_partials/overlap.md` first, and `_partials/design-record.md` when step 8 applies. Then `project.docs` and any `learnings.file` entries
 touching this area — say which past decisions you are applying.
 
 ## Checklist
@@ -33,7 +33,7 @@ touching this area — say which past decisions you are applying.
 5. Write acceptance criteria
 6. Cut the scope
 7. Rate priority — propose, then adjust
-8. Offer a mockup if it is visual
+8. Design it, if it is visual — here, elsewhere, or not at all
 9. Present the draft, then **ask where it lands** — issue or Discussion
 10. Create it and apply what step 1 settled; an issue goes on the board `spec_draft` → `ready`, a Discussion does not
 11. Capture the spec learnings
@@ -56,7 +56,7 @@ changes to other issues happen in step 10, when this one is created.
 ## 2. Ground first
 
 Read the actual files this would touch before asking anything. Grounded questions
-("the tutorial flag is stored per-profile and globally — which should this follow?")
+("the reminder time is stored per habit and per account — which should this follow?")
 are worth ten generic ones. Bring what you found into the conversation.
 
 ## 3. Explore
@@ -110,12 +110,12 @@ observable and checkable — a thing you could watch happen, not a quality you c
 argue about.
 
 ```
-- [ ] Using a hint on the last word of a level still leaves the level at minimum 1 star
-- [ ] Hint count resets when a level is replayed from the level-select screen
-- [ ] Free users see the upgrade prompt on the second hint of a level; Plus users never do
+- [ ] An unused freeze from last week is still available on Monday, up to a maximum of two
+- [ ] Using a freeze on a missed day keeps the streak count unchanged, not increased
+- [ ] Free users see the upgrade prompt on their third freeze of a week; Pro users never do
 ```
 
-Not: "hints work correctly", "good UX", "performance is acceptable".
+Not: "freezes work correctly", "good UX", "performance is acceptable".
 
 Also state **out of scope** explicitly. It is the half people skip and the half that
 stops the build wandering.
@@ -135,20 +135,89 @@ one reply.
 
 Name the goal the work serves, from `goals` — or say plainly that it serves none.
 You have just spent the conversation on this problem, so the reasons should be specific
-to it — *"parents asked for it in reviews"*, not *"users would find this helpful"*. If a
+to it — *"users asked for it in reviews"*, not *"users would find this helpful"*. If a
 rating is a guess, say so; that is what the confidence rating is for.
 
 If the table lands on **Reconsider**, say so directly: this may not be worth building.
 If confidence is **Low**, recommend a bounded investigation before the work itself.
 
-## 8. Mockup (visual changes only)
+## 8. Design (visual changes only)
 
-Skip silently if there is no visible UI. Otherwise offer one: a single self-contained
-HTML file, no network requests, wireframe-level — layout and flow, not polish.
+Skip silently if there is no visible UI. Otherwise the acceptance criteria say *what*
+must be true, and something has to say what it should *look* like — or the build will
+decide, and you will find out in review.
 
-Iterate until the user is happy, then save it next to the issue under
-`docs/features/{issue}-{slug}/mockup.html` and attach it to the issue. Do not build a
-release-asset upload pipeline for this; a committed file and a link is enough.
+### Size it first
+
+Call the change **small** only if all three hold, and say which way it went and why:
+
+- it uses **existing components** (a new arrangement is fine, a new component is not)
+- it touches **one or two screens**
+- it needs **no new visual direction** — no new colours, type or style
+
+### Offer the routes that fit
+
+Present the options that apply, **recommendation first**, and let the user pick:
+
+| Route | When to offer it | What happens |
+|---|---|---|
+| **Design it here** | Small, and Claude Design is available (below) | Claude designs it in this session on a Claude Design canvas, with you, using the project's design system. Recorded in the issue; no hand-off |
+| **Design it elsewhere** | Not small, or the user prefers their own tool | The issue is created with a **brief for the designer** and waits in Spec Draft with the `needs_design` label. When the design is ready, `/proof-handoff {n} <link>` checks it and moves the issue on |
+| **Wireframe** | Layout or flow is the open question, not the look | A self-contained HTML wireframe saved under `docs/features/{issue}-{slug}/mockup.html` — layout only, no polish |
+| **No design** | The criteria already pin it down (a copy change, one new field in an existing form) | Nothing extra |
+
+Recommend **design it here** for small changes when it is available, **elsewhere** for
+anything with a new component or new visual direction, and **no design** when a picture
+would add nothing.
+
+### Is "design it here" available?
+
+Two checks, both quick. Say the result either way.
+
+1. **Can this session make Claude Design canvases?** Call the Artifact tool's
+   `quickstart` with intent `design`. No Artifact tool, or no Design type in the result:
+   not available here — say so and offer the other routes.
+2. **Is there a design system to design with?** In order of preference:
+   - `design.reference` is a Claude Design System link → design with it. This is the
+     version worth having: the canvas uses the project's real tokens and, where the system
+     has them, its real components.
+   - `design.tokens` is set → design with the exact values from the token module, and say
+     the components will be close copies, not the real ones.
+   - Neither → **do not offer** "design it here". A canvas with an invented look is a
+     generic mockup that quietly sets a style nobody chose. Recommend `/proof-design` and
+     offer the other routes.
+
+### Designing it here
+
+1. **List the states to draw** from the acceptance criteria — the default, plus every
+   state a criterion mentions (empty, error, loading, the long-content case, the smallest
+   screen). Confirm the list in one line; it becomes the record's table.
+2. **Create one canvas**, titled after the issue, through the Artifact tool, and follow
+   the Design type's own instructions for building it. One artboard per state.
+3. **Iterate with the user** — in chat or through comments on the canvas — until they
+   approve it. Change only what they ask.
+4. **Check it against `design.rules` and `design.platform`** before calling it done, and
+   say what you checked. A rule broken on the canvas is a rule broken in the build.
+5. **Record it** per `_partials/design-record.md`: save the frozen copy, and put the
+   `## Design` section in the draft the user approves in step 9.
+
+### Designing it elsewhere
+
+Write a **design brief** into the draft, ready to paste into the design tool, so the
+design starts from the spec instead of from a blank page:
+
+```markdown
+## Design brief
+**What this is for:** {the problem and who has it, from the spec — two sentences}
+**Screens:** {which, and where they sit in the app}
+**States to draw:** {the default, and every state the criteria mention — empty, error,
+loading, long content, the smallest screen}
+**Constraints:** {design.platform; design.rules in plain words; the design system to use
+(design.reference), or "none yet"}
+**Out of scope:** {from the spec}
+```
+
+The states list is what `/proof-handoff` checks the design against, so make it complete.
 
 ## 9. Present, then ask where it lands
 
@@ -177,8 +246,8 @@ of maybes is one nobody looks at.
 
 ## 10a. Create the issue (if that is the answer)
 
-Title as a capability, not a task ("Hints carry over between levels", not "Add hint
-carry-over"). Body:
+Title as a capability, not a task ("Unused freezes carry over to next week", not "Add
+freeze carry-over"). Body:
 
 ```markdown
 ## Problem
@@ -192,6 +261,9 @@ carry-over"). Body:
 
 ## Out of scope
 - ...
+
+{## Design — only if step 8 designed it here, per _partials/design-record.md}
+{## Design brief — only if it is to be designed elsewhere}
 
 ## Notes
 {constraints, affected files, prior decisions being applied}
@@ -207,7 +279,8 @@ carry-over"). Body:
 
 Then, per `_partials/board.md`: add to the board, set `spec_draft`, and immediately
 move to `ready` with the `ready` label — the spec was approved in step 9, so the issue
-is ready the moment it exists. Apply the P-label, and `investigate` if confidence is Low. Speccing an existing issue updates it in place.
+is ready the moment it exists. **Except when it is to be designed elsewhere:** it stays at
+`spec_draft` with the `needs_design` label until `/proof-handoff` records the design. Apply the P-label, and `investigate` if confidence is Low. Speccing an existing issue updates it in place.
 
 Then apply what step 1 settled, per `_partials/overlap.md`: comment on and update, close,
 or attach as a sub-issue, and record the links in the new issue's Notes. Report each

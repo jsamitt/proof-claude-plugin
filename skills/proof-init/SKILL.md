@@ -43,7 +43,7 @@ confirm in a word. Cover, in order:
    store compliance, anything irreversible. This answer does more for review quality
    than anything else in the config.
 5. **Goals** — two to four things the project is trying to achieve right now, in plain
-   words (*"Pass App Store review"*, *"Grow Plus sign-ups"*). Every priority rating will
+   words (*"Pass App Store review"*, *"Grow Pro sign-ups"*). Every priority rating will
    name the goal it serves, so these are worth a minute. Skip if the user has none yet;
    never invent them.
 6. **Changelog and version** — if the repo has a changelog or a version file, confirm
@@ -163,10 +163,9 @@ ignores the folder's *contents*:
 Then verify with `git check-ignore` that both files are tracked and
 `.claude/settings.local.json` is still ignored. Say what you changed.
 
-The plugin repository is private. A new cloud session may not be allowed to download it
-at startup. If `/proof-` commands do not appear in a cloud session, the user can add the
-plugin repository to that session, or make the plugin repository public — it holds no
-secrets or project details by design.
+If `/proof-` commands do not appear in a cloud session, check that the session can reach
+GitHub, and that the project's `.claude/settings.json` is on the branch the session
+cloned.
 
 ## 6. Seed the decisions file
 

@@ -35,7 +35,8 @@ Spawn the agents named in `review.lenses`, in parallel, one message:
 
 Pass each: the diff, the acceptance criteria, relevant docs, and the lens-specific
 context — `review.risk_focus` verbatim to the risk reviewer, the whole `design` block to
-the design reviewer. Reviewers read and report. **They never edit.**
+the design reviewer, plus the issue's `## Design` section and the path to its frozen copy
+when there is one (`_partials/design-record.md`). Reviewers read and report. **They never edit.**
 
 **Skip the `design` lens when the diff has no UI.** It is also worth running with no
 design system wired, but expect a thinner review — it will say so itself and fall back

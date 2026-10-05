@@ -82,7 +82,7 @@ Set the `design` block in `.claude/harness.json`:
 | Key | Meaning |
 |---|---|
 | `tokens` | Path to the token module the app imports |
-| `reference` | URL of the browsable design system, if one exists |
+| `reference` | URL of the browsable design system, if one exists. A **Claude Design System** link is the most useful kind: `/proof-spec` can then design small changes on a Claude Design canvas with the project's real tokens and components |
 | `platform` | What consumes the tokens — decides the file's form and the rules that apply |
 | `rules` | House rules in plain prose, one per line — the things that break silently here |
 
@@ -96,6 +96,13 @@ Then **verify, do not assume**:
 
 Report each check. A wiring step that reports success without verifying is the failure
 this section exists to prevent.
+
+**A Claude Design System for the project.** If the user designs in Claude Design, or wants
+`/proof-spec` to design small changes itself, offer to put the tokens (and, where they can
+be previewed on the web, the components) into a Claude Design System, and set
+`reference` to it. Claude Code's `/design-sync` skill does this where it is available; the
+user starts it. Keep the token module in the repo as the source of truth — the design
+system is a copy that designs are made from, and it goes stale if it is edited on its own.
 
 ## 3. Report coverage and drift (every state)
 

@@ -37,9 +37,9 @@ A finding with a reproduction is worth ten without. Where you can run something,
 and report the exact input and the wrong output. A reproduced failure is `critical` and
 needs no further justification.
 
-Where you cannot run it, trace it concretely: "with `tries = 0`, line 112 computes
-`Math.max(1, 3 - 0)` — but `hintsUsed` was never reset on replay, so it reads 3 from
-the previous run and the level scores 1 star." That is a finding. "Edge cases may not
+Where you cannot run it, trace it concretely: "with `missedDays = 1`, line 112 computes
+`Math.max(0, freezesLeft - 1)` — but `freezesUsed` was never reset on Monday, so it reads 1
+from last week and the streak breaks despite a freeze being available." That is a finding. "Edge cases may not
 be handled" is not.
 
 ## Honesty
