@@ -22,7 +22,7 @@ Read the file and keep these in mind for the rest of the run:
 | `verify.steps` | Which commands must pass before work is called done |
 | `verify.manual` | Checks only the human can do; surface them, never claim them |
 | `board.*` | Board title, field name, and the label for each stage |
-| `labels.*` | Label names for ready / in-progress / discovered / blocked, and the priority labels p1 / p2 / p3 / investigate |
+| `labels.*` | Label names for ready / in-progress / discovered / blocked, the priority labels p1 / p2 / p3 / investigate, and needs_design (a design is awaited; `needs-design` if unset) |
 | `voice.audience` | Who reads the output. Unset = the default product-manager reader in `_partials/voice.md` |
 | `review.lenses` | Which reviewers run |
 | `review.risk_focus` | The project's actual risk areas — the risk reviewer's brief |

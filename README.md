@@ -44,14 +44,18 @@ each time, so they need nothing.
 the same issue, pick up a different issue, or pause. Nothing moves on unasked.
 
 ```
-spec ─→ work ─┐
-              ├─→ review ─→ ship ─→ learn
-fix  ─────────┘   (bugs take /proof-fix instead of spec and work)
+spec ─→ (handoff) ─→ work ─┐
+                           ├─→ review ─→ ship ─→ learn
+fix  ──────────────────────┘
 ```
+
+Bugs take `/proof-fix` instead of spec and work. `/proof-handoff` is only for issues
+designed in another tool.
 
 | Command | What it does |
 |---|---|
 | `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? |
+| `/proof-handoff <issue> <link>` | For a design made in another tool: sorts every element into exists / new / not buildable as drawn, checks every state has a frame, and writes the revisions for the design tool. Repeat until nothing blocks; then it records the design and the issue is ready to build |
 | `/proof-work <issue>` | Plan → *you approve* → build, verify, keep docs true, PR. Pauses again only for a decision the plan did not anticipate. Resumes from its checkpoint if interrupted |
 | `/proof-fix "<symptom>"` | For bugs: reproduce → root cause, proven → *you approve* the fix → fix with a test that fails before and passes after → PR |
 | `/proof-review [pr]` | Reviewers on the diff: correctness, breaker, project risk, and design where there is UI |
@@ -136,8 +140,11 @@ routes that fit:
   your project's design system. No hand-off between tools, because there is no second
   tool. Offered only when the session can make Claude Design canvases *and* the project
   has a design system to design with; otherwise you would get a generic look nobody chose
-- **Design it elsewhere.** Bigger work goes to your design tool. When it is ready,
-  `/proof-spec <issue> <link>` attaches it
+- **Design it elsewhere.** Bigger work goes to your design tool, starting from a brief
+  the spec writes. When the design is ready, `/proof-handoff <issue> <link>` checks it
+  against the code before anything is built: what already exists, what is new, what
+  cannot be built as drawn, and which states have no frame. It writes the changes for
+  the design tool, ready to paste, and repeats until nothing blocks
 - **Wireframe**, for when layout is the question, or **no design** when the criteria
   already pin it down
 
@@ -200,7 +207,7 @@ then it guards nothing.
 
 ```
 .claude-plugin/    plugin.json, marketplace.json
-skills/            the ten commands, plus _partials/ shared by them
+skills/            the eleven commands, plus _partials/ shared by them
 agents/            the four reviewers
 hooks/             hooks.json
 scripts/           board.sh, setup-board.sh, hooks/

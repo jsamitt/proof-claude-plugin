@@ -18,7 +18,6 @@ is an informed one.
 /proof-spec "unused streak freezes should carry over to next week"
 /proof-spec 14            # spec an issue that already exists
 /proof-spec d/7           # pick up Discussion #7 and finish it
-/proof-spec 14 <link>     # attach a design made elsewhere to issue #14
 ```
 
 Read `_partials/config.md`, `_partials/voice.md`, `_partials/priority.md` and
@@ -163,7 +162,7 @@ Present the options that apply, **recommendation first**, and let the user pick:
 | Route | When to offer it | What happens |
 |---|---|---|
 | **Design it here** | Small, and Claude Design is available (below) | Claude designs it in this session on a Claude Design canvas, with you, using the project's design system. Recorded in the issue; no hand-off |
-| **Design it elsewhere** | Not small, or the user prefers their own tool | The issue is created now; attach the design later with `/proof-spec {n} <link>` |
+| **Design it elsewhere** | Not small, or the user prefers their own tool | The issue is created with a **brief for the designer** and waits in Spec Draft with the `needs_design` label. When the design is ready, `/proof-handoff {n} <link>` checks it and moves the issue on |
 | **Wireframe** | Layout or flow is the open question, not the look | A self-contained HTML wireframe saved under `docs/features/{issue}-{slug}/mockup.html` — layout only, no polish |
 | **No design** | The criteria already pin it down (a copy change, one new field in an existing form) | Nothing extra |
 
@@ -202,12 +201,23 @@ Two checks, both quick. Say the result either way.
 5. **Record it** per `_partials/design-record.md`: save the frozen copy, and put the
    `## Design` section in the draft the user approves in step 9.
 
-### Attaching a design made elsewhere
+### Designing it elsewhere
 
-Given `/proof-spec {n} <link>` on an issue that already exists: skip steps 1–7 and go
-straight to recording the design per `_partials/design-record.md`. Check that every
-state in the acceptance criteria has a design, list any that do not, and update the issue
-only after the user approves the record.
+Write a **design brief** into the draft, ready to paste into the design tool, so the
+design starts from the spec instead of from a blank page:
+
+```markdown
+## Design brief
+**What this is for:** {the problem and who has it, from the spec — two sentences}
+**Screens:** {which, and where they sit in the app}
+**States to draw:** {the default, and every state the criteria mention — empty, error,
+loading, long content, the smallest screen}
+**Constraints:** {design.platform; design.rules in plain words; the design system to use
+(design.reference), or "none yet"}
+**Out of scope:** {from the spec}
+```
+
+The states list is what `/proof-handoff` checks the design against, so make it complete.
 
 ## 9. Present, then ask where it lands
 
@@ -252,7 +262,8 @@ freeze carry-over"). Body:
 ## Out of scope
 - ...
 
-{## Design — only if step 8 produced one, per _partials/design-record.md}
+{## Design — only if step 8 designed it here, per _partials/design-record.md}
+{## Design brief — only if it is to be designed elsewhere}
 
 ## Notes
 {constraints, affected files, prior decisions being applied}
@@ -268,7 +279,8 @@ freeze carry-over"). Body:
 
 Then, per `_partials/board.md`: add to the board, set `spec_draft`, and immediately
 move to `ready` with the `ready` label — the spec was approved in step 9, so the issue
-is ready the moment it exists. Apply the P-label, and `investigate` if confidence is Low. Speccing an existing issue updates it in place.
+is ready the moment it exists. **Except when it is to be designed elsewhere:** it stays at
+`spec_draft` with the `needs_design` label until `/proof-handoff` records the design. Apply the P-label, and `investigate` if confidence is Low. Speccing an existing issue updates it in place.
 
 Then apply what step 1 settled, per `_partials/overlap.md`: comment on and update, close,
 or attach as a sub-issue, and record the links in the new issue's Notes. Report each

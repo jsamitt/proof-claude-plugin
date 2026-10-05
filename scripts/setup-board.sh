@@ -50,6 +50,7 @@ LABELS=()
 while IFS= read -r line; do [ -n "$line" ] && LABELS+=("$line"); done < <(python3 -c '
 import json,sys
 lb=json.load(open(sys.argv[1])).get("labels",{})
+lb.setdefault("needs_design", "needs-design")   # added in 0.7.0; older configs lack it
 for v in lb.values():
     if v: print(v)
 ' "$CFG")
@@ -227,7 +228,7 @@ color_for() {
   case "$1" in
     ready-to-dev) echo 0E8A16 ;; in-progress) echo FBCA04 ;; discovered) echo C5DEF5 ;;
     blocked) echo B60205 ;; P1) echo D73A4A ;; P2) echo F9A03F ;; P3) echo BFD4F2 ;;
-    needs-investigation) echo 8250DF ;; *) echo EDEDED ;;
+    needs-investigation) echo 8250DF ;; needs-design) echo D4C5F9 ;; *) echo EDEDED ;;
   esac
 }
 EXISTING_LABELS="$(gh label list --limit 200 --json name -q '.[].name' 2>/dev/null)"

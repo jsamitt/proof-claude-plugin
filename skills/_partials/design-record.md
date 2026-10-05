@@ -5,8 +5,8 @@ form the build can work from and the design reviewer can check against. Without 
 "done" means "close to the design", and close is where the drift lives.
 
 One definition, used by every route a design takes — designed in Claude Code during
-`/proof-spec`, or designed elsewhere and attached later. Read by `/proof-work` and by the
-design reviewer.
+`/proof-spec`, or designed elsewhere and checked by `/proof-handoff`. Read by
+`/proof-work` and by the design reviewer.
 
 ## What it contains
 

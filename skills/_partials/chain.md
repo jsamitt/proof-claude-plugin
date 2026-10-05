@@ -3,12 +3,13 @@
 Every issue moves through the same sequence, and each skill knows where it sits:
 
 ```
-spec ─→ work ─┐
-              ├─→ review ─→ ship ─→ learn
-fix  ─────────┘
+spec ─→ (handoff) ─→ work ─┐
+                           ├─→ review ─→ ship ─→ learn
+fix  ──────────────────────┘
 ```
 
-`/proof-fix` replaces spec and work for bugs. Everything after is shared.
+`/proof-fix` replaces spec and work for bugs. `/proof-handoff` sits between spec and work
+only for issues designed in another tool. Everything after is shared.
 
 ## At the end of every step: ask, never assume
 
@@ -32,6 +33,9 @@ does not ask again what to work on.
 | After | Recommended next | Also offer |
 |---|---|---|
 | `/proof-spec` → issue | **Build it** — `/proof-work {n}` | Spec another · Pick up a different issue · Pause |
+| `/proof-spec` → issue to be designed elsewhere | **Design it** in your design tool from the brief, then `/proof-handoff {n} <link>` | Spec another · Pick up a different issue · Pause |
+| `/proof-handoff` → design still blocked | **Revise the design** with the revisions note, then `/proof-handoff {n} <new link>` | Settle the blocking items as exceptions or spec changes · Pause |
+| `/proof-handoff` → recorded | **Build it** — `/proof-work {n}` | Pick up a different issue · Pause |
 | `/proof-spec` → Discussion | **Spec another**, or pick up an issue | Pause |
 | `/proof-work` or `/proof-fix` → PR | **Review it** — `/proof-review {pr}` | Pick up a different issue · Pause |
 | `/proof-review` with criticals | **Fix the criticals**, then re-review | Pause |
