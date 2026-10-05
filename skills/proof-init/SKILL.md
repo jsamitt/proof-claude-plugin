@@ -163,10 +163,9 @@ ignores the folder's *contents*:
 Then verify with `git check-ignore` that both files are tracked and
 `.claude/settings.local.json` is still ignored. Say what you changed.
 
-The plugin repository is private. A new cloud session may not be allowed to download it
-at startup. If `/proof-` commands do not appear in a cloud session, the user can add the
-plugin repository to that session, or make the plugin repository public — it holds no
-secrets or project details by design.
+If `/proof-` commands do not appear in a cloud session, check that the session can reach
+GitHub, and that the project's `.claude/settings.json` is on the branch the session
+cloned.
 
 ## 6. Seed the decisions file
 

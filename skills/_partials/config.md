@@ -28,7 +28,7 @@ Read the file and keep these in mind for the rest of the run:
 | `review.risk_focus` | The project's actual risk areas — the risk reviewer's brief |
 | `goals` | What the project is trying to achieve now. Value ratings name the goal they serve. Empty = rate on merits, never invent goals |
 | `ship.changelog` / `ship.store_notes` | The changelog file, and whether to draft app-store release notes. See `_partials/changelog.md` |
-| `design.*` | Token module, reference URL, platform and house rules. Unset = no design system; say so rather than inventing one |
+| `design.*` | Token module, reference URL (a Claude Design System link enables designing on a canvas in `/proof-spec`), platform and house rules. Unset = no design system; say so rather than inventing one |
 | `ship.*` | Preflight checklist, ordered deploy steps, files holding the version |
 | `learnings.file` | Where durable decisions are rolled up |
 | `protected_paths` | Never edit these |

@@ -7,6 +7,25 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-05 — Small designs are made in the spec; every design is recorded in the issue
+
+**Decision:** `/proof-spec` can design a small visual change itself, on a Claude Design
+canvas, using the project's design system. Whatever route a design takes, it is recorded
+in the issue the same way (`_partials/design-record.md`): a frozen copy in the repo, one
+row per state with its own acceptance criteria, components by their code names, and the
+decisions made. `/proof-work` builds to it and the design reviewer checks against it.
+**Why:** Designing in one tool and building in another makes the user the messenger,
+checking twice by hand that the design can be built and that the build matches it. For
+small changes the cheapest hand-off is none. For every change, "done" needs a fixed
+target, or it means "close to the design".
+**Rejected:** A dedicated hand-off skill first. It is still worth building for large
+designs made elsewhere, but the record is what both routes need, so it came first.
+Offering "design it here" without a design system: it produces a generic look that
+quietly becomes the style.
+**Gotcha:** Claude Design artboards are source files (`.dc.html`), so the frozen copy holds
+exact values, not pictures. The canvas cannot be rendered to check it from the session, so
+comparison works from the source.
+
 ## 2026-09-25 — New work is checked against existing work on the way in
 
 **Decision:** `/proof-spec` starts by checking the idea against open issues, Discussions,

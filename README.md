@@ -37,11 +37,6 @@ claude plugin update proof@proof
 Then restart Claude Code. Cloud sessions and the nightly digest download a fresh copy
 each time, so they need nothing.
 
-### Cloud sessions
-
-This repository is private, so a new cloud session may not be allowed to download Proof
-at startup. If the `/proof-` commands are missing, add this repository to the session, or
-make it public — it holds no secrets or project details by design.
 
 ## Commands
 
@@ -56,7 +51,7 @@ fix  ─────────┘   (bugs take /proof-fix instead of spec and 
 
 | Command | What it does |
 |---|---|
-| `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → acceptance criteria and a priority rating, then asks: a board-tracked **issue**, or a parked **Discussion**? |
+| `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? |
 | `/proof-work <issue>` | Plan → *you approve* → build, verify, keep docs true, PR. Pauses again only for a decision the plan did not anticipate. Resumes from its checkpoint if interrupted |
 | `/proof-fix "<symptom>"` | For bugs: reproduce → root cause, proven → *you approve* the fix → fix with a test that fails before and passes after → PR |
 | `/proof-review [pr]` | Reviewers on the diff: correctness, breaker, project risk, and design where there is UI |
@@ -130,6 +125,30 @@ so out loud. Proof never guesses a command from the file tree.
   project's docs wrong, and fixes the facts in the same PR
 - **Plain language by default.** Everything you read leads with what changes for users,
   then cost, then risk, then technical detail — plain on top, exact underneath
+
+## Designs that get built as drawn
+
+For anything visual, `/proof-spec` asks how it should be designed, and offers only the
+routes that fit:
+
+- **Design it here.** For small changes — existing components, one or two screens, no new
+  visual direction — Claude designs it during the spec, on a Claude Design canvas, using
+  your project's design system. No hand-off between tools, because there is no second
+  tool. Offered only when the session can make Claude Design canvases *and* the project
+  has a design system to design with; otherwise you would get a generic look nobody chose
+- **Design it elsewhere.** Bigger work goes to your design tool. When it is ready,
+  `/proof-spec <issue> <link>` attaches it
+- **Wireframe**, for when layout is the question, or **no design** when the criteria
+  already pin it down
+
+Either way, the approved design is **recorded in the issue**: a frozen copy saved in the
+repo, one row per state with its own acceptance criteria, the components to reuse or
+create, and the decisions made along the way. `/proof-work` builds to it and reports a
+**design match** per state in the PR; the design reviewer checks the build against it.
+"Close to the design" stops counting as done.
+
+`/proof-design` sets up the design system this depends on, including a Claude Design
+System for the project so designs are made from its real tokens.
 
 ## What it deliberately does not do
 

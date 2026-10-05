@@ -18,10 +18,11 @@ is an informed one.
 /proof-spec "hints should carry over between levels"
 /proof-spec 14            # spec an issue that already exists
 /proof-spec d/7           # pick up Discussion #7 and finish it
+/proof-spec 14 <link>     # attach a design made elsewhere to issue #14
 ```
 
 Read `_partials/config.md`, `_partials/voice.md`, `_partials/priority.md` and
-`_partials/overlap.md` first. Then `project.docs` and any `learnings.file` entries
+`_partials/overlap.md` first, and `_partials/design-record.md` when step 8 applies. Then `project.docs` and any `learnings.file` entries
 touching this area — say which past decisions you are applying.
 
 ## Checklist
@@ -33,7 +34,7 @@ touching this area — say which past decisions you are applying.
 5. Write acceptance criteria
 6. Cut the scope
 7. Rate priority — propose, then adjust
-8. Offer a mockup if it is visual
+8. Design it, if it is visual — here, elsewhere, or not at all
 9. Present the draft, then **ask where it lands** — issue or Discussion
 10. Create it and apply what step 1 settled; an issue goes on the board `spec_draft` → `ready`, a Discussion does not
 11. Capture the spec learnings
@@ -141,14 +142,72 @@ rating is a guess, say so; that is what the confidence rating is for.
 If the table lands on **Reconsider**, say so directly: this may not be worth building.
 If confidence is **Low**, recommend a bounded investigation before the work itself.
 
-## 8. Mockup (visual changes only)
+## 8. Design (visual changes only)
 
-Skip silently if there is no visible UI. Otherwise offer one: a single self-contained
-HTML file, no network requests, wireframe-level — layout and flow, not polish.
+Skip silently if there is no visible UI. Otherwise the acceptance criteria say *what*
+must be true, and something has to say what it should *look* like — or the build will
+decide, and you will find out in review.
 
-Iterate until the user is happy, then save it next to the issue under
-`docs/features/{issue}-{slug}/mockup.html` and attach it to the issue. Do not build a
-release-asset upload pipeline for this; a committed file and a link is enough.
+### Size it first
+
+Call the change **small** only if all three hold, and say which way it went and why:
+
+- it uses **existing components** (a new arrangement is fine, a new component is not)
+- it touches **one or two screens**
+- it needs **no new visual direction** — no new colours, type or style
+
+### Offer the routes that fit
+
+Present the options that apply, **recommendation first**, and let the user pick:
+
+| Route | When to offer it | What happens |
+|---|---|---|
+| **Design it here** | Small, and Claude Design is available (below) | Claude designs it in this session on a Claude Design canvas, with you, using the project's design system. Recorded in the issue; no hand-off |
+| **Design it elsewhere** | Not small, or the user prefers their own tool | The issue is created now; attach the design later with `/proof-spec {n} <link>` |
+| **Wireframe** | Layout or flow is the open question, not the look | A self-contained HTML wireframe saved under `docs/features/{issue}-{slug}/mockup.html` — layout only, no polish |
+| **No design** | The criteria already pin it down (a copy change, one new field in an existing form) | Nothing extra |
+
+Recommend **design it here** for small changes when it is available, **elsewhere** for
+anything with a new component or new visual direction, and **no design** when a picture
+would add nothing.
+
+### Is "design it here" available?
+
+Two checks, both quick. Say the result either way.
+
+1. **Can this session make Claude Design canvases?** Call the Artifact tool's
+   `quickstart` with intent `design`. No Artifact tool, or no Design type in the result:
+   not available here — say so and offer the other routes.
+2. **Is there a design system to design with?** In order of preference:
+   - `design.reference` is a Claude Design System link → design with it. This is the
+     version worth having: the canvas uses the project's real tokens and, where the system
+     has them, its real components.
+   - `design.tokens` is set → design with the exact values from the token module, and say
+     the components will be close copies, not the real ones.
+   - Neither → **do not offer** "design it here". A canvas with an invented look is a
+     generic mockup that quietly sets a style nobody chose. Recommend `/proof-design` and
+     offer the other routes.
+
+### Designing it here
+
+1. **List the states to draw** from the acceptance criteria — the default, plus every
+   state a criterion mentions (empty, error, loading, the long-content case, the smallest
+   screen). Confirm the list in one line; it becomes the record's table.
+2. **Create one canvas**, titled after the issue, through the Artifact tool, and follow
+   the Design type's own instructions for building it. One artboard per state.
+3. **Iterate with the user** — in chat or through comments on the canvas — until they
+   approve it. Change only what they ask.
+4. **Check it against `design.rules` and `design.platform`** before calling it done, and
+   say what you checked. A rule broken on the canvas is a rule broken in the build.
+5. **Record it** per `_partials/design-record.md`: save the frozen copy, and put the
+   `## Design` section in the draft the user approves in step 9.
+
+### Attaching a design made elsewhere
+
+Given `/proof-spec {n} <link>` on an issue that already exists: skip steps 1–7 and go
+straight to recording the design per `_partials/design-record.md`. Check that every
+state in the acceptance criteria has a design, list any that do not, and update the issue
+only after the user approves the record.
 
 ## 9. Present, then ask where it lands
 
@@ -192,6 +251,8 @@ carry-over"). Body:
 
 ## Out of scope
 - ...
+
+{## Design — only if step 8 produced one, per _partials/design-record.md}
 
 ## Notes
 {constraints, affected files, prior decisions being applied}

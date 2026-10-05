@@ -34,6 +34,12 @@ Read `_partials/config.md`, `_partials/voice.md` and `_partials/changelog.md` fi
 Read the issue, its acceptance criteria and out-of-scope list, plus `project.docs` and
 any `learnings.file` entries touching this area.
 
+**If the issue has a `## Design` section**, read `_partials/design-record.md` and the
+frozen copy it points to. The design is part of the contract: each state's criteria are
+acceptance criteria like any other. If the frozen copy is missing, or a state in the
+criteria has no design, stop and say so — building from memory of a design is how it
+drifts.
+
 Stop and say so if there are no acceptance criteria (run `/proof-spec {n}` first), or
 the criteria are too vague to build against. Starting anyway and improvising the spec is
 the single most expensive failure mode here.
@@ -63,6 +69,9 @@ Present, briefly:
 - **What it touches that the issue did not mention** — shared state, migrations,
   anything with blast radius beyond the diff
 - **What you are unsure about** — the honest list, not a confidence performance
+- **With a design:** the components to reuse, change and create, as the record lists
+  them, and anything on the canvas you cannot build as drawn, with what you would do
+  instead. Raise it here, not mid-build
 
 Write it per `_partials/voice.md`: what the user will notice first, then the mechanics.
 
@@ -75,6 +84,12 @@ plan that got approved without being read.
 
 Work criterion by criterion, in the plan's order. Commit at each meaningful step with
 `(refs #{n})` in the message.
+
+**With a design:** commit its frozen copy first, so the target goes in with the change.
+Build to it — the copy word for word, the colours and spacing through the project's
+tokens rather than the canvas's raw values, and every state in the record. Where you
+must depart from it, that is a decision the plan did not anticipate (below), not a
+detail to absorb quietly.
 
 **On tests:** write them where they carry weight — logic with real branching, anything
 with money, auth, or data loss attached, anything a past learning says broke before.
@@ -120,6 +135,11 @@ consent for the plan — not for decisions nobody has seen yet. So:
 ## 6. Verify
 
 Run every command in `verify.steps`. Report real output. Fix what fails and re-run.
+
+**With a design**, check each state in the record against what you built, and say how:
+if this session can run the UI (a dev server, a simulator tool), put each built state
+beside its artboard and report what differs; if it cannot, add every state to the manual
+list below. A state you did not look at is not matched.
 
 Then surface `verify.manual` as an explicit list for the user — the checks only they can
 do. **Never describe a manual check as passed.** "Tested in the simulator" is a claim
@@ -168,6 +188,9 @@ Closes #{n}
 {commands run, real results}
 
 **Needs manual check:** {verify.manual items, unticked}
+
+## Design match
+{only with a design: each state — matched, differs (how, and why), or not checked}
 
 ## Docs and changelog
 {docs updated, or "docs checked, nothing stale"} · {changelog line added, or "no user-facing change"}
