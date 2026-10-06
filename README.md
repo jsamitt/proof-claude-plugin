@@ -3,6 +3,18 @@
 A Claude Code development harness for **solo builders**. Spec → build → review → ship,
 with a running record of why the thing is built the way it is.
 
+Working alone with an AI assistant, the mistakes compound quietly. You forget why you
+decided something, and nobody is nearby to say an idea isn't sound. The assistant builds
+whatever you ask, filling every gap in your instructions with assumptions about intent,
+behaviour and design. It also makes confident claims from what's in the current session
+that turn out to be false once you check the code. So lessons get learned twice, and
+things break without anyone noticing.
+
+A **harness** is the scaffolding around your AI assistant: the steps every piece of work
+goes through, the checks it must pass, and a record of what was decided and why. The AI
+still builds; the harness makes sure it builds the right thing and remembers what it
+learned.
+
 Most AI development harnesses are team harnesses: staged handoffs, review boards,
 parallel work queues. Those solve coordination problems. Working alone you do not have
 coordination problems — you have **memory problems and second-opinion problems**. Proof
@@ -31,6 +43,14 @@ Proof sits between them. It keeps the two things a solo builder actually lacks, 
 memory and a second opinion**, and automates the process work around them: the board,
 labels, changelog, docs and the record of decisions. You decide what to build and
 approve the plan. Proof handles the bookkeeping, so your attention goes on the product.
+
+## Before you install
+
+Don't take a stranger's word for a plugin that runs commands in your repository. Clone
+this repo and hand it to your own AI coding assistant first: ask it to review the skills,
+hooks and scripts for safety and effectiveness, and to make any changes your setup needs.
+Then install it. Everything Proof does is in plain-English skill files and short shell
+scripts, so the review is quick.
 
 ## Install
 
@@ -201,6 +221,26 @@ than they did on a team: a **Discussion** is offered as a place to park a worked
 concept *off* the board, and oversized work can split into a **parent with native
 sub-issues** — both decided inside `/proof-spec`, neither a stage anything must pass
 through.
+
+## A very small team
+
+Proof is built for one person, but it should stretch to two or three. This is untested,
+so treat it as a starting point. A PM and an engineer could split the steps: the PM runs
+`/proof-spec` and `/proof-learn`; the engineer runs `/proof-work`, `/proof-review` and
+`/proof-ship`. The board, the issue comments and the decisions file become the shared
+memory between them, since all of them live in the repo or on GitHub. The main addition is
+a human review alongside the reviewer agents before anything merges. Proof already leaves
+merging to a person, so this is a change of habit, not of the plugin.
+
+## Other AI assistants
+
+Proof is a Claude Code plugin, but most of it isn't specific to Claude. The skills are
+plain-English instructions, every project fact lives in `.claude/harness.json`, and the
+guards are shell scripts. To use it with another assistant, such as Codex or Gemini, hand
+it this repo and ask it to turn the skills into its own commands and instruction files,
+and the guards into its own hooks, if it has them. Two parts won't carry over: the Claude
+Design routes in `/proof-spec`, `/proof-handoff` and `/proof-design`, and the nightly
+digest, which runs as a Claude Code routine.
 
 ## The nightly digest
 
