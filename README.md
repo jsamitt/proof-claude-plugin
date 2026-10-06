@@ -69,6 +69,12 @@ It reads the repo, asks what it cannot infer, and writes `.claude/harness.json`.
 adds a project settings file so Claude Code offers Proof to anyone who opens the project,
 creates the GitHub board and labels, and optionally sets up the nightly digest.
 
+It also offers to **protect your main branch on GitHub**, with settings that work for one
+person: no deleting or force-pushing, every change through a pull request, **0 required
+approvals** (GitHub won't let you approve your own, so requiring one locks you out), and
+required checks only for CI that actually runs. Proof's own guard already refuses pushes
+to main, but only from Claude Code on your computer; this covers everywhere else.
+
 Run it on your computer rather than in a cloud session: creating the board and labels
 needs GitHub's command-line tool, which cloud sessions do not have.
 

@@ -9,7 +9,7 @@
       "name": "proof",
       "source": "./",
       "description": "Spec -> build -> review -> ship, with a running record of decisions. Configured per project.",
-      "version": "0.7.4",
+      "version": "0.7.5",
       "keywords": [
         "workflow",
         "solo",
@@ -17,5 +17,5 @@
       ]
     }
   ],
-  "version": "0.7.4"
+  "version": "0.7.5"
 }
