@@ -3,10 +3,54 @@
 A Claude Code development harness for **solo builders**. Spec → build → review → ship,
 with a running record of why the thing is built the way it is.
 
+Working alone with an AI assistant, the mistakes compound quietly. You forget why you
+decided something, and nobody is nearby to say an idea isn't sound. The assistant builds
+whatever you ask, filling every gap in your instructions with assumptions about intent,
+behaviour and design. It also makes confident claims from what's in the current session
+that turn out to be false once you check the code. So lessons get learned twice, and
+things break without anyone noticing.
+
+A **harness** is the scaffolding around your AI assistant: the steps every piece of work
+goes through, the checks it must pass, and a record of what was decided and why. The AI
+still builds; the harness makes sure it builds the right thing and remembers what it
+learned.
+
 Most AI development harnesses are team harnesses: staged handoffs, review boards,
 parallel work queues. Those solve coordination problems. Working alone you do not have
 coordination problems — you have **memory problems and second-opinion problems**. Proof
 keeps the parts that address those and drops the rest.
+
+## Why a harness at all, and why this size
+
+Working alone with Claude Code, you can run with no structure at all, or borrow a
+harness built for a team. Both cost you, in different ways:
+
+| | No harness | Proof | Team harness |
+|---|---|---|---|
+| **Getting started** | Instant | One `/proof-init` | Stages, roles and handoffs to set up |
+| **Why it's built this way** | Lost in old chat transcripts | Recorded on the issue, the important parts kept in a decisions file | Recorded, across many documents |
+| **Planning** | The first idea wins | Two or three real options, user stories and checkable criteria, in one conversation | Idea, epic and technical spec, each a separate stage |
+| **Review** | Your own eyes, tired | Reviewer agents on every PR, checking your project's own risks | Review boards and approvals built for several people |
+| **Board, changelog, docs** | By hand, so mostly not | Kept up to date automatically, as the work happens | By hand, or by a process owner |
+| **Lessons** | Learned again next month | Captured at each step, searchable later | Captured in retros |
+| **What you pay for** | Rework and forgotten reasons | A few questions per issue | Ceremony whose job is moving information between people |
+
+No harness is fast until the third time you rebuild something you'd already decided
+against. A team harness is safe, but most of its stages exist to coordinate people, and
+alone you pay for the coordination without needing it.
+
+Proof sits between them. It keeps the two things a solo builder actually lacks, **a
+memory and a second opinion**, and automates the process work around them: the board,
+labels, changelog, docs and the record of decisions. You decide what to build and
+approve the plan. Proof handles the bookkeeping, so your attention goes on the product.
+
+## Before you install
+
+Don't take a stranger's word for a plugin that runs commands in your repository. Clone
+this repo and hand it to your own AI coding assistant first: ask it to review the skills,
+hooks and scripts for safety and effectiveness, and to make any changes your setup needs.
+Then install it. Everything Proof does is in plain-English skill files and short shell
+scripts, so the review is quick.
 
 ## Install
 
@@ -54,7 +98,7 @@ designed in another tool.
 
 | Command | What it does |
 |---|---|
-| `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? |
+| `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → user stories, acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? |
 | `/proof-handoff <issue> <link>` | For a design made in another tool: sorts every element into exists / new / not buildable as drawn, checks every state has a frame, and writes the revisions for the design tool. Repeat until nothing blocks; then it records the design and the issue is ready to build |
 | `/proof-work <issue>` | Plan → *you approve* → build, verify, keep docs true, PR. Pauses again only for a decision the plan did not anticipate. Resumes from its checkpoint if interrupted |
 | `/proof-fix "<symptom>"` | For bugs: reproduce → root cause, proven → *you approve* the fix → fix with a test that fails before and passes after → PR |
@@ -113,6 +157,10 @@ so out loud. Proof never guesses a command from the file tree.
   supersessions and contradictions are settled in the session, and the changes to other
   issues are applied only when the new one is created. Bugs and discovered work get a
   lighter duplicate check before anything is filed
+- **Specs say who and why.** Each spec opens with user stories ("As a parent checking
+  progress, I want … so that …") before its acceptance criteria. Every criterion serves a
+  story, and the build and the review use the stories to judge cases the criteria
+  didn't foresee
 - **Discovered work** is collected during a run and presented at the end with a
   recommendation for each item. Nothing is filed without your approval
 - **Priority** is rated at spec time on value, effort and confidence — High/Medium/Low,
@@ -135,10 +183,12 @@ so out loud. Proof never guesses a command from the file tree.
 For anything visual, `/proof-spec` asks how it should be designed, and offers only the
 routes that fit:
 
-- **Design it here.** For small changes — existing components, one or two screens, no new
-  visual direction — Claude designs it during the spec, on a Claude Design canvas, using
-  your project's design system. No hand-off between tools, because there is no second
-  tool. Offered only when the session can make Claude Design canvases *and* the project
+- **Design it here.** For small changes, Claude designs it during the spec, on a Claude
+  Design canvas, using your project's design system. No hand-off between tools, because
+  there is no second tool. "Small" means existing components, no new visual direction,
+  and a narrow design question: one or two screens, **or one change applied the same way
+  everywhere**. A contrast fix that darkens a colour across the whole app is small; it's
+  drawn as a few representative screens, today and after, side by side. Offered only when the session can make Claude Design canvases *and* the project
   has a design system to design with; otherwise you would get a generic look nobody chose
 - **Design it elsewhere.** Bigger work goes to your design tool, starting from a brief
   the spec writes. When the design is ready, `/proof-handoff <issue> <link>` checks it
@@ -155,7 +205,10 @@ create, and the decisions made along the way. `/proof-work` builds to it and rep
 "Close to the design" stops counting as done.
 
 `/proof-design` sets up the design system this depends on, including a Claude Design
-System for the project so designs are made from its real tokens.
+System for the project so designs are made from its real tokens. Its usage notes are
+written from how the code actually uses each token, not from intent, and it measures the
+contrast of every pairing it recommends, so a design can't quietly copy a pair that's
+hard to read.
 
 ## What it deliberately does not do
 
@@ -168,6 +221,26 @@ than they did on a team: a **Discussion** is offered as a place to park a worked
 concept *off* the board, and oversized work can split into a **parent with native
 sub-issues** — both decided inside `/proof-spec`, neither a stage anything must pass
 through.
+
+## A very small team
+
+Proof is built for one person, but it should stretch to two or three. This is untested,
+so treat it as a starting point. A PM and an engineer could split the steps: the PM runs
+`/proof-spec` and `/proof-learn`; the engineer runs `/proof-work`, `/proof-review` and
+`/proof-ship`. The board, the issue comments and the decisions file become the shared
+memory between them, since all of them live in the repo or on GitHub. The main addition is
+a human review alongside the reviewer agents before anything merges. Proof already leaves
+merging to a person, so this is a change of habit, not of the plugin.
+
+## Other AI assistants
+
+Proof is a Claude Code plugin, but most of it isn't specific to Claude. The skills are
+plain-English instructions, every project fact lives in `.claude/harness.json`, and the
+guards are shell scripts. To use it with another assistant, such as Codex or Gemini, hand
+it this repo and ask it to turn the skills into its own commands and instruction files,
+and the guards into its own hooks, if it has them. Two parts won't carry over: the Claude
+Design routes in `/proof-spec`, `/proof-handoff` and `/proof-design`, and the nightly
+digest, which runs as a Claude Code routine.
 
 ## The nightly digest
 
@@ -226,7 +299,7 @@ Before merging, install the branch and check that everything loads:
 ```bash
 claude plugin validate .claude-plugin/plugin.json
 claude plugin marketplace add /path/to/your/checkout && claude plugin install proof@proof
-claude plugin details proof     # expect 10 skills, 4 agents, 3 hook events
+claude plugin details proof     # expect 11 skills, 4 agents, 3 hook events
 bash tests/pre-bash-guard.test.sh   # expect 0 failed
 claude plugin list              # expect "Status: enabled" for proof
 ```

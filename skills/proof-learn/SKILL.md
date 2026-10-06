@@ -1,6 +1,6 @@
 ---
 name: proof-learn
-description: The last step of every issue, and whenever a working session pauses — sweeps the session for lessons about the product and code while the conversation still exists. Owns what the project knows: records a lesson directly, searches past decisions, promotes durable ones into the decisions file behind a durability gate, and keeps that file pruned. Part of every issue
+description: "The last step of every issue, and whenever a working session pauses — sweeps the session for lessons about the product and code while the conversation still exists. Owns what the project knows: records a lesson directly, searches past decisions, promotes durable ones into the decisions file behind a durability gate, and keeps that file pruned. Part of every issue"
 ---
 
 # Learn
