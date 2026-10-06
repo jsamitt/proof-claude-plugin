@@ -111,8 +111,8 @@ It is idempotent, so it's safe on a board that already has some of this.
 
 ### What needs the user: walk them through it, one step at a time
 
-The script flags each step below with a tag. The first two you can finish yourself once
-the user agrees; GitHub's API cannot do the rest. Go through
+The script flags each step below with a tag. Steps 1, 3 and 6 you can finish yourself
+once the user agrees; GitHub's API cannot do the rest. Go through
 each flagged step **as its own exchange**: say what it's for in one line, give the link and
 the exact clicks, then **wait for the user** before moving on. Do not batch them into one
 list, and do not move to step 5 until each is done or explicitly skipped. Where the API
@@ -159,6 +159,25 @@ confirmation.
 5. **`CHECK (default-repo)`**: where *+ Add item* on the board creates issues. Steps:
    `<board>/settings` → Default repository → this repo. Nothing can read this setting,
    so ask the user to confirm it's set, and record that the confirmation is theirs.
+
+6. **`DECIDE (branch-protection)`**: the default branch has no protection on GitHub.
+   Proof's bash guard refuses pushes straight to it, but only in Claude Code on a machine
+   with the plugin installed; a push from anywhere else goes through. Show the user the
+   settings the script proposes and why each is set that way for one person:
+   - block deletion and force pushes
+   - require a pull request, with **0 approvals**: GitHub won't let you approve your own
+     pull request, so requiring one locks you out of your own repository
+   - required checks: only the ones the script found on the latest pull request. None
+     found means none required, because a required check that never runs blocks every
+     merge. If CI exists but hasn't run on a pull request yet, say so: re-run after the
+     first one to add its checks by hand at `settings/rules`
+   It changes a repository setting, so ask. On a yes, re-run the script with
+   `--protect-default-branch` and confirm it reports the ruleset created.
+   **`CHECK (branch-protection)`** instead means a private repository on a plan without
+   rulesets. Nothing can be turned on; say that Proof's local guard is the only
+   protection, and that GitHub Pro or a public repository adds it.
+   **Already protected** (the script says "left as is"): say so and move on. Never
+   change protection someone already set up.
 
 If the user skips a step, note it as an open item in the hand-back (step 8).
 
@@ -238,8 +257,9 @@ and the one-line next step — `/proof-spec "<something you want to build>"`.
 
 List anything from step 4 that is still open **first**: Issues or Discussions left off
 (and what that means: no Discussion landing in `/proof-spec`), a missing Ideas category, a
-skipped or unconfirmed auto-add workflow or default repository, and the done-workflows
-decision if it was deferred. Give the link for each.
+skipped or unconfirmed auto-add workflow or default repository, the done-workflows
+decision if it was deferred, and an unprotected default branch (declined, or not
+available on the repository's plan). Give the link for each.
 
 Flag honestly anything that will limit the harness: no test command, an empty test
 suite, no typecheck, no board permissions, a board not yet created because this was a

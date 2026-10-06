@@ -13,12 +13,17 @@
 #   scripts/setup-board.sh --enable-repo-features   # turn on the repository
 #       features Proof uses (Issues, Discussions) if they are off. A visible
 #       repo setting change: only pass this after the user has agreed.
+#   scripts/setup-board.sh --protect-default-branch # create a ruleset for the
+#       default branch if it has no protection: block deletion and force
+#       pushes, require a pull request with 0 approvals, and require the checks
+#       that ran on the latest pull request. Only pass this after the user agreed.
 #
 # Done automatically: board, repo link, Status stage options, labels, adding
 # existing open issues. Reported for the user (GitHub's API cannot do them):
 # the auto-add workflow, the default repository, and a missing Ideas
 # discussion category. Repo features that are off are reported, and turned on
-# only with --enable-repo-features. Output lines starting
+# only with --enable-repo-features; an unprotected default branch is reported,
+# and protected only with --protect-default-branch. Output lines starting
 # "ACTION NEEDED" / "CHECK" / "DECIDE" are what proof-init relays.
 #
 # Portable to macOS's stock bash 3.2: no mapfile, no associative arrays, and
@@ -26,12 +31,13 @@
 # ============================================================================
 set -uo pipefail
 
-DRY=0; REMOVE_DONE=0; ENABLE_FEATURES=0
+DRY=0; REMOVE_DONE=0; ENABLE_FEATURES=0; PROTECT=0
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
     --remove-done-workflows) REMOVE_DONE=1 ;;
     --enable-repo-features) ENABLE_FEATURES=1 ;;
+    --protect-default-branch) PROTECT=1 ;;
     *) echo "unknown option: $a" >&2; exit 2 ;;
   esac
 done
@@ -101,6 +107,79 @@ if [ "$HAS_DISCUSSIONS" = "true" ] && [ "$DRY" = 0 ]; then
     say "  ACTION NEEDED (ideas-category) — Discussions has no \"Ideas\" category; /proof-spec parks ideas there."
     say "    https://github.com/$OWNER/$REPO/discussions/categories/new → Name: Ideas, Format: Open-ended discussion"
     ACTIONS=1
+  fi
+fi
+
+# --- 0b. Default branch protection -------------------------------------------
+# Proof's bash guard refuses pushes straight to the default branch, but only in
+# Claude Code on a machine with the plugin. A GitHub ruleset enforces it from
+# anywhere. Settings for one person: 0 required approvals (GitHub won't let you
+# approve your own pull request, so 1 locks you out), and required checks only
+# for checks that actually ran on a pull request (a required check that never
+# runs blocks every merge). Existing protection is reported and left alone.
+BRANCH="$(gh api "repos/$OWNER/$REPO" -q .default_branch 2>/dev/null)"
+say "Default branch: $BRANCH"
+RULES_ERR="$TMP/rules-err.txt"
+RULES="$(gh api "repos/$OWNER/$REPO/rules/branches/$BRANCH" -q 'map(.type) | join(" ")' 2>"$RULES_ERR")"
+RULES_OK=$?
+CLASSIC=0
+gh api "repos/$OWNER/$REPO/branches/$BRANCH/protection" >/dev/null 2>&1 && CLASSIC=1
+if [ "$RULES_OK" != 0 ] && grep -q "Upgrade to GitHub Pro" "$RULES_ERR"; then
+  say "  CHECK (branch-protection) — this private repository's GitHub plan has no rulesets or branch protection."
+  say "    Proof's local guard is the only thing stopping a push straight to $BRANCH. GitHub Pro, or making the repository public, adds it."
+elif [ -n "$RULES" ] || [ "$CLASSIC" = 1 ]; then
+  [ -n "$RULES" ] && say "  protected by a ruleset ($RULES); left as is"
+  [ "$CLASSIC" = 1 ] && say "  protected by branch protection; left as is"
+else
+  # The checks that ran on the most recent pull request: real names, from real runs.
+  CHECKS=()
+  PR_SHA="$(gh pr list --state all --limit 1 --json headRefOid -q '.[0].headRefOid' 2>/dev/null)"
+  if [ -n "$PR_SHA" ]; then
+    while IFS= read -r c; do [ -n "$c" ] && CHECKS+=("$c"); done < <(
+      gh api "repos/$OWNER/$REPO/commits/$PR_SHA/check-runs" -q '.check_runs[].name' 2>/dev/null | sort -u)
+  fi
+  CHECK_LIST="${CHECKS[*]+"${CHECKS[*]}"}"
+  if [ "$PROTECT" = 1 ]; then
+    python3 - "$BRANCH" ${CHECKS[@]+"${CHECKS[@]}"} > "$TMP/ruleset.json" <<'EOF'
+import json, sys
+branch, checks = sys.argv[1], sys.argv[2:]
+rules = [
+    {"type": "deletion"},
+    {"type": "non_fast_forward"},
+    {"type": "pull_request", "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": False,
+        "require_code_owner_review": False,
+        "require_last_push_approval": False,
+        "required_review_thread_resolution": False}},
+]
+if checks:
+    rules.append({"type": "required_status_checks", "parameters": {
+        "strict_required_status_checks_policy": False,
+        "required_status_checks": [{"context": c} for c in checks]}})
+print(json.dumps({"name": "Protect " + branch + " (Proof)", "target": "branch",
+    "enforcement": "active", "bypass_actors": [],
+    "conditions": {"ref_name": {"include": ["~DEFAULT_BRANCH"], "exclude": []}},
+    "rules": rules}))
+EOF
+    if [ "$DRY" = 1 ]; then
+      say "  would create ruleset: $(cat "$TMP/ruleset.json")"
+    elif gh api -X POST "repos/$OWNER/$REPO/rulesets" --input "$TMP/ruleset.json" >/dev/null 2>"$RULES_ERR"; then
+      say "  created ruleset \"Protect $BRANCH (Proof)\": no deletion or force push; pull request required, 0 approvals"
+      [ -n "$CHECK_LIST" ] && say "    required checks: $CHECK_LIST" || say "    no required checks (none ran on the latest pull request)"
+    else
+      say "  could not create the ruleset: $(cat "$RULES_ERR")"
+      say "    Set it up by hand: https://github.com/$OWNER/$REPO/settings/rules"
+    fi
+  else
+    say "  DECIDE (branch-protection) — $BRANCH isn't protected on GitHub. Proof's guard only stops pushes from Claude Code on this computer."
+    say "    Proposed: block deletion and force pushes; require a pull request, 0 approvals (you can't approve your own)."
+    if [ -n "$CHECK_LIST" ]; then
+      say "    Required checks, from the latest pull request: $CHECK_LIST"
+    else
+      say "    No required checks: none ran on the latest pull request, and a required check that never runs blocks every merge."
+    fi
+    say "    Turn on: re-run with --protect-default-branch"
   fi
 fi
 

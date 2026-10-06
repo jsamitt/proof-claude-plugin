@@ -7,6 +7,22 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-06 — Protect the default branch for one person, from real check names
+
+**Decision:** `/proof-init` offers a GitHub ruleset for the default branch: no deletion or
+force push, pull request required with **0 approvals**, and required checks taken from
+the check runs on the latest pull request.
+**Why:** Proof's guard only stops pushes from Claude Code on a machine with the plugin.
+GitHub's own form suggests 1 approval, which locks a solo developer out, because you
+can't approve your own pull request.
+**Rejected:** Reading check names from the workflow files. A check's name depends on job
+names, matrix values and `name:` keys, and a required name that never reports blocks
+every merge. Names from a real run are the only ones known to report.
+
+**Gotcha:** Private repositories on GitHub's free plan have no rulesets or branch
+protection; the API answers 403 "Upgrade to GitHub Pro". The script reports that as a
+`CHECK`, not a failure. Proof's local guard is then the only protection.
+
 ## 2026-10-06 — Quote a skill description that contains ": "
 
 **Gotcha:** A colon followed by a space inside an unquoted `description:` is a YAML
