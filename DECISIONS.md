@@ -7,6 +7,30 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-06 — Specs carry user stories before acceptance criteria
+
+**Decision:** `/proof-spec` writes a **User stories** section ("As a {specific user}, I
+want {goal} so that {reason}") before the acceptance criteria, and every criterion must
+serve a story. `/proof-work` and the reviewers receive the stories with the criteria.
+**Why:** criteria say *what* must be true but not *for whom* or *why*. The reason is what
+lets the build and the review judge a case the criteria did not foresee, and tying
+criteria to stories exposes scope creep (a criterion serving no story) and gaps (a story
+with no criterion).
+
+## 2026-10-06 — /proof-init turns on the GitHub features Proof depends on
+
+**Decision:** `setup-board.sh` checks that Issues and Discussions are on and that an
+*Ideas* discussion category exists. Features that are off are reported as a decision, and
+switched on with `gh repo edit` only after the user agrees (`--enable-repo-features`). A
+missing category is walked through, since the API cannot create one. `/proof-spec` checks
+before offering the Discussion landing and says when it is unavailable.
+**Why:** Discussions are off on many repositories, so `/proof-spec`'s "park it as a
+Discussion" option failed late, after the spec was written.
+**Gotcha:** GitHub's GraphQL `hasDiscussionsEnabled` and REST `has_discussions` can briefly
+disagree right after the setting changes. Re-read before concluding either way.
+**Rejected:** turning features on silently. Discussions add a public tab on a public
+repository, which is the owner's call.
+
 ## 2026-10-05 — Small designs are made in the spec; every design is recorded in the issue
 
 **Decision:** `/proof-spec` can design a small visual change itself, on a Claude Design

@@ -30,7 +30,7 @@ touching this area — say which past decisions you are applying.
 2. Ground yourself in the code that this would touch
 3. Explore the problem — one question at a time
 4. Propose 2–3 approaches with a recommendation
-5. Write acceptance criteria
+5. Write user stories, then acceptance criteria
 6. Cut the scope
 7. Rate priority — propose, then adjust
 8. Design it, if it is visual — here, elsewhere, or not at all
@@ -103,7 +103,29 @@ genuinely hinges on something you could find out — a platform limit, a library
 behaviour — offer to research it, naming the question and how each answer changes the
 call. Otherwise, recommend and move on.
 
-## 5. Acceptance criteria
+## 5. User stories, then acceptance criteria
+
+### User stories
+
+Before the criteria, say **who** this is for and **why**, as user stories:
+
+```
+As a {specific user}, I want {goal} so that {reason}.
+```
+
+- **One story per distinct user and goal**, usually one to three. If you need more than
+  four, the request is probably several requests; that is the split question in step 3.
+- **Name a real, specific user**: *a parent checking a child's progress*, not *a user*.
+  For internal work (a refactor, tooling), the user can be the developer or maintainer,
+  but the *so that* must still reach someone who uses the product. If it can't, say so;
+  that is a signal for the priority rating.
+- **The reason is the point.** It is what lets the build and the review judge a case the
+  criteria did not foresee. *"So that it works"* is not a reason.
+- Draft them from step 3's answers, show them, and let the user correct them. Every
+  acceptance criterion below should serve at least one story; a criterion that serves
+  none is scope creep, and a story with no criterion is not being built.
+
+### Acceptance criteria
 
 The contract `/proof-work` builds against and `/proof-review` reviews against. Each one
 observable and checkable — a thing you could watch happen, not a quality you could
@@ -235,6 +257,13 @@ Then ask — always, every run, even when the answer seems obvious:
 > **1. Issue** — committed work. Goes on the board at Ready to Dev, buildable now.
 > **2. Discussion** — a worked-out concept, parked. Not on the board, nothing owed.
 
+Before asking, check that the repository can take a Discussion:
+`gh api repos/{owner}/{repo} -q .has_discussions`, and an *Ideas* category. If either is
+missing, say so in the question: option 2 is unavailable until Discussions are on (with
+an Ideas category), and `/proof-init --refresh` will set that up. Do not quietly drop the
+option, and do not create the issue anyway when the user wanted to park it. Ask whether
+to land it as an issue, or stop and set up Discussions first.
+
 Say which you would pick and why, in one line. The honest default is an **issue** when
 the user came in wanting to build the thing, and a **Discussion** when the conversation
 kept opening questions rather than closing them, when it depends on something that does
@@ -255,6 +284,9 @@ freeze carry-over"). Body:
 
 ## Approach
 {the chosen option, and one line on why it beat the alternatives}
+
+## User stories
+- As a {specific user}, I want {goal} so that {reason}.
 
 ## Acceptance criteria
 - [ ] ...
@@ -291,7 +323,7 @@ change with a link.
 Create it in the **Ideas** category via `gh api graphql` (there is no `gh discussion`
 command). Resolve the repository and category IDs at runtime; never hardcode them.
 
-Same body as the issue, with three changes: the acceptance criteria become a
+Same body as the issue (user stories included), with three changes: the acceptance criteria become a
 **Sketch of scope** (unchecked, clearly provisional — they have not been committed to),
 add an **Open questions** section holding what the conversation did not settle, and the
 Priority section is titled **Provisional priority**. No label — it is not a commitment.

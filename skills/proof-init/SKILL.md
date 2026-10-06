@@ -104,15 +104,28 @@ It is idempotent, so it's safe on a board that already has some of this.
 
 ### What needs the user: walk them through it, one step at a time
 
-GitHub's API cannot do the steps below. The script flags each one with a tag. Go through
+The script flags each step below with a tag. The first two you can finish yourself once
+the user agrees; GitHub's API cannot do the rest. Go through
 each flagged step **as its own exchange**: say what it's for in one line, give the link and
 the exact clicks, then **wait for the user** before moving on. Do not batch them into one
 list, and do not move to step 5 until each is done or explicitly skipped. Where the API
 can confirm the result, **re-run the script and check**. The user saying "done" is not
 confirmation.
 
-1. **`DECIDE (done-workflows)`** — ask this first, because it is the only one you can
-   finish yourself. The built-in *Item closed* and *Pull request merged* workflows move
+1. **`DECIDE (repo-features)`** — ask this first. Proof files work as **Issues** and
+   parks worked-out ideas as **Discussions** (`/proof-spec`'s second landing option;
+   `/proof-plan` and the overlap check read them). Either can be switched off on a
+   repository. Name what is off and what each is for, and say plainly that turning on
+   Discussions adds a Discussions tab to the repository (visible to anyone who can see
+   it). On a yes, re-run the script with `--enable-repo-features` and confirm it reports
+   them on. If the user declines Discussions, say that `/proof-spec` will offer issues
+   only, and move on.
+2. **`ACTION NEEDED (ideas-category)`**: rare, because GitHub creates an *Ideas* category
+   when Discussions are switched on, but it can be deleted or renamed. Nothing in the API
+   can create one. Steps: the link the script prints → Name: `Ideas`, Format:
+   *Open-ended discussion* → Create. Re-run the script and confirm it reports the
+   category present.
+3. **`DECIDE (done-workflows)`** — ask this next; you can also finish it yourself. The built-in *Item closed* and *Pull request merged* workflows move
    cards to the shipped stage when a PR merges or an issue closes, which is before
    `/proof-ship` has released anything. Offer three options:
    - **Remove them now** (recommended; Proof moves cards itself): re-run the script with
@@ -120,13 +133,13 @@ confirmation.
      cannot recreate built-in workflows.
    - **Turn them off by hand** (reversible): `<board>/workflows` → each one → toggle off.
    - **Keep them.**
-2. **`ACTION NEEDED (auto-add)`**. Without it, only issues a Proof skill touches reach the
+4. **`ACTION NEEDED (auto-add)`**. Without it, only issues a Proof skill touches reach the
    board. Issues opened on the GitHub website or by other tools never do. Steps:
    `<board>/workflows` → *Auto-add to project* → Edit → Repository: this repo → Filter:
    `is:issue,pr is:open` → Save and turn on. Free accounts get one auto-add workflow.
    When the user says done, re-run the script and confirm it prints `auto-add workflow on`.
    If it doesn't, say what the script sees and go through it again.
-3. **`CHECK (default-repo)`**: where *+ Add item* on the board creates issues. Steps:
+5. **`CHECK (default-repo)`**: where *+ Add item* on the board creates issues. Steps:
    `<board>/settings` → Default repository → this repo. Nothing can read this setting,
    so ask the user to confirm it's set, and record that the confirmation is theirs.
 
@@ -206,9 +219,10 @@ If yes:
 Report: the config path, what you inferred vs. what the user told you, the board URL,
 and the one-line next step — `/proof-spec "<something you want to build>"`.
 
-List anything from step 4 that is still open **first**: a skipped or unconfirmed
-auto-add workflow or default repository, and the done-workflows decision if it was
-deferred. Give the link for each.
+List anything from step 4 that is still open **first**: Issues or Discussions left off
+(and what that means: no Discussion landing in `/proof-spec`), a missing Ideas category, a
+skipped or unconfirmed auto-add workflow or default repository, and the done-workflows
+decision if it was deferred. Give the link for each.
 
 Flag honestly anything that will limit the harness: no test command, an empty test
 suite, no typecheck, no board permissions, a board not yet created because this was a

@@ -1,6 +1,6 @@
 {
   "name": "proof",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A lean development harness for solo builders: spec -> build -> review -> ship, with a running record of decisions and learnings. Project-agnostic; every project fact is read from .claude/harness.json, never baked into a skill.",
   "author": {
     "name": "Proof"

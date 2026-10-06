@@ -18,7 +18,7 @@ Read `_partials/config.md` and `_partials/voice.md` first.
 
 ## 1. Gather
 
-The diff, the linked issue and its acceptance criteria, `project.docs`, and any
+The diff, the linked issue with its user stories and acceptance criteria, `project.docs`, and any
 `learnings.file` entries touching these files. Reviewers judge against the criteria —
 not against their own idea of what the feature should have been.
 
@@ -33,7 +33,7 @@ Spawn the agents named in `review.lenses`, in parallel, one message:
 | `risk` | `proof-review-risk` | The project's own risk areas, from `review.risk_focus` |
 | `design` | `proof-review-design` | Design-system adherence and platform accessibility |
 
-Pass each: the diff, the acceptance criteria, relevant docs, and the lens-specific
+Pass each: the diff, the user stories and acceptance criteria, relevant docs, and the lens-specific
 context — `review.risk_focus` verbatim to the risk reviewer, the whole `design` block to
 the design reviewer, plus the issue's `## Design` section and the path to its frozen copy
 when there is one (`_partials/design-record.md`). Reviewers read and report. **They never edit.**

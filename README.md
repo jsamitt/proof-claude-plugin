@@ -66,7 +66,7 @@ designed in another tool.
 
 | Command | What it does |
 |---|---|
-| `/proof-init` | Configure Proof for a project; create the board and labels. Once per project |
+| `/proof-init` | Configure Proof for a project: the board, labels, and the GitHub features Proof uses (Issues, Discussions). Turns on what it can after asking; walks you through the rest. Once per project |
 | `/proof-plan` | What to work on next, in what order; re-check stale priorities; optional cleanup. Applies anything you ticked in the digest first |
 | `/proof-retro` | **How the work goes.** Monthly or after a release: shipped against plan, where work waited, estimates against reality, what keeps breaking, how often lessons repeated, whether goals moved. At most three process changes |
 | `/proof-design` | Establish a design system, wire it so the other skills obey it, or report drift |
