@@ -23,7 +23,9 @@ enabled. It reports open issues created since auto-add was saved that aren't on 
 (`ACTION NEEDED (auto-add-filter)`), and otherwise says the filter couldn't be verified.
 `/proof-init` tells the user to replace GitHub's pre-filled filter, and to read it back.
 **Gotcha:** GitHub pre-fills the auto-add filter with `label:bug`, so with the default only
-bugs reach the board. The API exposes whether the workflow is enabled, never its filter.
+bugs reach the board.
+**Filter:** `is:issue is:open`, issues only. Proof moves work by issue, and each issue card
+shows its linked PR; PR cards duplicate them and stay stranded in the first stage. The API exposes whether the workflow is enabled, never its filter.
 
 ## 2026-10-06 — Claude Design Systems are built through the Design System artifact type
 
