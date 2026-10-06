@@ -31,7 +31,7 @@ Read `_partials/config.md`, `_partials/voice.md` and `_partials/changelog.md` fi
 
 ## 1. Fetch and check
 
-Read the issue, its acceptance criteria and out-of-scope list, plus `project.docs` and
+Read the issue: its user stories, acceptance criteria and out-of-scope list, plus `project.docs` and
 any `learnings.file` entries touching this area.
 
 **If the issue has the `needs_design` label**, stop: it is waiting for a design. Say so,

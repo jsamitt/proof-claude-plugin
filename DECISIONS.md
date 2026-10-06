@@ -7,6 +7,16 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-06 — Specs carry user stories before acceptance criteria
+
+**Decision:** `/proof-spec` writes a **User stories** section ("As a {specific user}, I
+want {goal} so that {reason}") before the acceptance criteria, and every criterion must
+serve a story. `/proof-work` and the reviewers receive the stories with the criteria.
+**Why:** criteria say *what* must be true but not *for whom* or *why*. The reason is what
+lets the build and the review judge a case the criteria did not foresee, and tying
+criteria to stories exposes scope creep (a criterion serving no story) and gaps (a story
+with no criterion).
+
 ## 2026-10-06 — /proof-init turns on the GitHub features Proof depends on
 
 **Decision:** `setup-board.sh` checks that Issues and Discussions are on and that an
