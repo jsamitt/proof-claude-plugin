@@ -147,7 +147,9 @@ confirmation.
    one auto-add workflow.
    **The filter is the trap.** GitHub pre-fills it with `label:bug` (for example
    `is:issue,pr is:open label:bug`), which silently skips every issue that isn't a bug.
-   Tell the user to **replace** it with exactly `is:issue,pr is:open`, and ask them to
+   Tell the user to **replace** it with exactly `is:issue is:open` (issues only: Proof
+   tracks work by issue, each issue card already shows its linked PR, and PR cards would
+   sit in the first stage forever because no skill moves them), and ask them to
    read back what the filter box says. The API can see that auto-add is on but never its
    filter, so the user's read-back is the only direct check.
    Then re-run the script. It checks behaviour: any open issue created since auto-add was

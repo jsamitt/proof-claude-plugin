@@ -230,16 +230,16 @@ if [ -n "${PROJECT_ID:-}" ]; then
       say "  ACTION NEEDED (auto-add-filter) — auto-add is on, but it skipped issues opened since it was set up:"
       printf '%s\n' "$SKIPPED" | head -5 | while IFS= read -r t; do say "    • $t"; done
       say "    Its filter is probably GitHub's pre-filled one (\"... label:bug\"). Change it at"
-      say "    $BOARD_URL/workflows → 'Auto-add to project' → Edit → Filter: is:issue,pr is:open"
+      say "    $BOARD_URL/workflows → 'Auto-add to project' → Edit → Filter: is:issue is:open"
       ACTIONS=1
     else
-      say "  auto-add workflow enabled. Its filter can't be read: confirm it is exactly \"is:issue,pr is:open\""
+      say "  auto-add workflow enabled. Its filter can't be read: confirm it is exactly \"is:issue is:open\""
       say "    (GitHub pre-fills \"label:bug\", which skips everything else)"
     fi
   else
     say "  ACTION NEEDED (auto-add) — new issues will not reach the board on their own."
     say "    $BOARD_URL/workflows → 'Auto-add to project' → Edit"
-    say "    Repository: $REPO   Filter: replace GitHub's pre-filled one with exactly: is:issue,pr is:open   → Save and turn on"
+    say "    Repository: $REPO   Filter: replace GitHub's pre-filled one with exactly: is:issue is:open   → Save and turn on"
     ACTIONS=1
   fi
 
