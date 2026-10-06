@@ -7,6 +7,34 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-06 — Absent config keys are reported, never silently treated as null
+
+**Decision:** a key missing from `.claude/harness.json` is not the same as `null`. Skills
+say once that the config predates the key and point to `/proof-init --refresh`, then fall
+back sensibly (the changelog step uses a root `CHANGELOG.md`). `--refresh` compares the
+config with the current template and asks about every missing key.
+**Why:** a project set up by an older Proof had a changelog, but no `ship.changelog` key.
+The build skipped the changelog step for every change, and nothing said so.
+
+## 2026-10-06 — Auto-add is checked by behaviour, because its filter can't be read
+
+**Decision:** `setup-board.sh` no longer reports "auto-add on" just because the workflow is
+enabled. It reports open issues created since auto-add was saved that aren't on the board
+(`ACTION NEEDED (auto-add-filter)`), and otherwise says the filter couldn't be verified.
+`/proof-init` tells the user to replace GitHub's pre-filled filter, and to read it back.
+**Gotcha:** GitHub pre-fills the auto-add filter with `label:bug`, so with the default only
+bugs reach the board. The API exposes whether the workflow is enabled, never its filter.
+
+## 2026-10-06 — Claude Design Systems are built through the Design System artifact type
+
+**Decision:** `/proof-design` builds a project's Claude Design System with the Artifact
+tool's Design System type, not `/design-sync` (which most setups lack, and which is for
+syncing component libraries). Usage notes come from a grep of real usage, contrast is
+measured for every pairing a note recommends, and scale coverage is reported.
+**Why:** on the first real run, notes written from each token's intended role were wrong
+in seven places across two review rounds, including a "safe" pairing that failed
+contrast.
+
 ## 2026-10-06 — Specs carry user stories before acceptance criteria
 
 **Decision:** `/proof-spec` writes a **User stories** section ("As a {specific user}, I

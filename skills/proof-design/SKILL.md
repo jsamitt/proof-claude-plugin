@@ -82,7 +82,7 @@ Set the `design` block in `.claude/harness.json`:
 | Key | Meaning |
 |---|---|
 | `tokens` | Path to the token module the app imports |
-| `reference` | URL of the browsable design system, if one exists. A **Claude Design System** link is the most useful kind: `/proof-spec` can then design small changes on a Claude Design canvas with the project's real tokens and components |
+| `reference` | URL of the browsable design system, if one exists. A **Claude Design System** link is the most useful kind: `/proof-spec` can then design small changes on a Claude Design canvas with the project's real tokens (and components, for web projects). See *A Claude Design System for the project* below |
 | `platform` | What consumes the tokens — decides the file's form and the rules that apply |
 | `rules` | House rules in plain prose, one per line — the things that break silently here |
 
@@ -97,12 +97,45 @@ Then **verify, do not assume**:
 Report each check. A wiring step that reports success without verifying is the failure
 this section exists to prevent.
 
-**A Claude Design System for the project.** If the user designs in Claude Design, or wants
-`/proof-spec` to design small changes itself, offer to put the tokens (and, where they can
-be previewed on the web, the components) into a Claude Design System, and set
-`reference` to it. Claude Code's `/design-sync` skill does this where it is available; the
-user starts it. Keep the token module in the repo as the source of truth — the design
-system is a copy that designs are made from, and it goes stale if it is edited on its own.
+### A Claude Design System for the project
+
+If the user designs in Claude Design, or wants `/proof-spec` to design small changes
+itself, offer to build a **Claude Design System** from the token module and set
+`reference` to it. Designs attached to it use the project's exact values instead of a look
+Claude invents. The token module stays the source of truth; the system is a copy, and
+goes stale if it is edited on its own.
+
+**The route that works everywhere: the Artifact tool's Design System type.** No extra
+skill is needed. `/design-sync` exists in some setups, but it is for syncing a component
+library into an existing system; don't send the user looking for it.
+
+1. Find the type with `quickstart` (intent `other`) or `list` (`scope: "types"`), create one
+   system from it with only a `title`, then **read its references** (`from-code.md`,
+   `format.md`, `cover.md`) before writing anything. The type's own instructions govern the
+   file shapes; follow them.
+2. **Tokens from the module, exactly.** Every family is a list of `{name, value, usage}`;
+   names are unique across families. A hosted font (Google) needs no font files, only
+   `type.families`, but say that previews may render slightly differently from the app's
+   bundled font.
+3. **Usage notes come from the code, not from intent.** For every colour, grep where the
+   screens actually use it and write the note from that. Notes written from a token's
+   intended role are wrong surprisingly often, and designers trust them.
+4. **Measure contrast for every pairing a note recommends**, not only the ones it warns
+   about, and put the ratios in the notes. The "safe" pairing is the one most likely to be
+   wrong. Flag a failing pair in the source rather than hiding it.
+5. **Report how much of the code each scale covers** (type sizes, radii, spacing) before
+   calling it complete. Scales picked from the most common values can miss a step that is
+   just as common.
+6. **README = a brand book:** audience and tone, visual foundations, the rules that break
+   silently (`design.rules`), and a *Not synced* section saying what was left out.
+7. **Platform limit:** a system's component previews are **web**. For React Native, Flutter
+   or native apps, include tokens and rules only, and say so under *Not synced*.
+   Components would be hand-made look-alikes.
+8. **Validate locally before publishing.** The generated `tokens.css` only exists once the
+   page is opened, so it can't be read back to check. Check `tokens.json` against the
+   format's rules (name pattern, no duplicates, allowed colour syntax) yourself.
+9. Publish the files, index last, then add a line to the project docs: *refresh the system
+   whenever the token module changes*.
 
 ## 3. Report coverage and drift (every state)
 
