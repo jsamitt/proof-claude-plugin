@@ -7,6 +7,25 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-06 — Quote a skill description that contains ": "
+
+**Gotcha:** A colon followed by a space inside an unquoted `description:` is a YAML
+parse error. The skill still loads, but with empty frontmatter, so Claude Code never
+sees its description and won't offer it at the right moment. `proof-learn` and
+`proof-retro` shipped like this. Quote any description that holds `: `, and run
+`claude plugin validate` before merging, which catches it.
+
+## 2026-10-06 — Size "design it here" by the design question, not the screen count
+
+**Decision:** One change applied the same way across many screens (a token value, a
+colour swap) counts as small, and so does refining an existing colour. It's drawn as a
+few representative screens, today and after, side by side.
+**Why:** A contrast fix that darkened three tokens across about 20 screens failed the
+old "one or two screens, no new colours" test, but a four-screen before/after settled it
+in one session.
+**Rejected:** Keeping the screen count and sending app-wide token changes to "design it
+elsewhere": a brief and a hand-off for a question one preview answers.
+
 ## 2026-10-06 — Absent config keys are reported, never silently treated as null
 
 **Decision:** a key missing from `.claude/harness.json` is not the same as `null`. Skills

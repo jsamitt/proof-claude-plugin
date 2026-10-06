@@ -1,6 +1,6 @@
 ---
 name: proof-spec
-description: Use when turning an idea into something buildable — first checks it against the board for anything it overlaps, supersedes or contradicts and settles each, then explores the problem, proposes approaches, writes acceptance criteria, rates priority, and asks whether it lands as a board-tracked issue or a parked GitHub Discussion; splits oversized work into a parent with sub-issues. Part of every issue
+description: Use when turning an idea into something buildable — first checks it against the board for anything it overlaps, supersedes or contradicts and settles each, then explores the problem, proposes approaches, writes user stories and acceptance criteria, rates priority, and asks whether it lands as a board-tracked issue or a parked GitHub Discussion; splits oversized work into a parent with sub-issues. Part of every issue
 ---
 
 # Spec
@@ -171,11 +171,20 @@ decide, and you will find out in review.
 
 ### Size it first
 
-Call the change **small** only if all three hold, and say which way it went and why:
+Size it by the **design question**, not by how much code it touches. Call the change
+**small** only if all three hold, and say which way it went and why:
 
 - it uses **existing components** (a new arrangement is fine, a new component is not)
-- it touches **one or two screens**
-- it needs **no new visual direction** — no new colours, type or style
+- the design question is **narrow**: it touches **one or two screens**, *or* it is **one
+  change applied the same way everywhere** — a token value, a colour swap — which a few
+  representative screens show completely
+- it needs **no new visual direction**. Refining an existing colour is not new direction:
+  a darker shade of the brand colour so its text passes contrast is still the same look.
+  A new palette, typeface or style is new direction
+
+A contrast fix that changes three token values across twenty screens is small: the
+question is "does the darker shade look right?", and a before/after of four screens
+answers it. A redesign of two screens with a new card style is not.
 
 ### Offer the routes that fit
 
@@ -214,8 +223,14 @@ Two checks, both quick. Say the result either way.
 1. **List the states to draw** from the acceptance criteria — the default, plus every
    state a criterion mentions (empty, error, loading, the long-content case, the smallest
    screen). Confirm the list in one line; it becomes the record's table.
+   **For one change applied everywhere**, the states are instead a few **representative
+   screens**, chosen to cover every kind of use the change touches (a button, text on a
+   light background, an error message), not the screens that happen to be first.
 2. **Create one canvas**, titled after the issue, through the Artifact tool, and follow
-   the Design type's own instructions for building it. One artboard per state.
+   the Design type's own instructions for building it. One artboard per state. For one
+   change applied everywhere, each artboard shows the screen **today and after the
+   change, side by side**, using today's values from the code, so the user judges the
+   difference rather than the new look alone.
 3. **Iterate with the user** — in chat or through comments on the canvas — until they
    approve it. Change only what they ask.
 4. **Check it against `design.rules` and `design.platform`** before calling it done, and

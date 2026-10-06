@@ -1,6 +1,6 @@
 ---
 name: proof-retro
-description: Use periodically — monthly or after a release, not part of every issue. Owns how the work goes, not what was learned. Looks back over a stretch of work: shipped against planned, where work waited, how estimates held up, which areas keep breaking, how often lessons repeated, whether the goals moved. Ends with at most three process changes, proposed not applied
+description: "Use periodically — monthly or after a release, not part of every issue. Owns how the work goes, not what was learned. Looks back over a stretch of work: shipped against planned, where work waited, how estimates held up, which areas keep breaking, how often lessons repeated, whether the goals moved. Ends with at most three process changes, proposed not applied"
 ---
 
 # Retro
