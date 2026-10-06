@@ -10,10 +10,15 @@
 #   scripts/setup-board.sh --remove-done-workflows  # also delete the built-in
 #       "Item closed" and "Pull request merged" workflows (PERMANENT: GitHub's
 #       API cannot recreate them). Only pass this after the user has agreed.
+#   scripts/setup-board.sh --enable-repo-features   # turn on the repository
+#       features Proof uses (Issues, Discussions) if they are off. A visible
+#       repo setting change: only pass this after the user has agreed.
 #
 # Done automatically: board, repo link, Status stage options, labels, adding
 # existing open issues. Reported for the user (GitHub's API cannot do them):
-# the auto-add workflow and the default repository. Output lines starting
+# the auto-add workflow, the default repository, and a missing Ideas
+# discussion category. Repo features that are off are reported, and turned on
+# only with --enable-repo-features. Output lines starting
 # "ACTION NEEDED" / "CHECK" / "DECIDE" are what proof-init relays.
 #
 # Portable to macOS's stock bash 3.2: no mapfile, no associative arrays, and
@@ -21,11 +26,12 @@
 # ============================================================================
 set -uo pipefail
 
-DRY=0; REMOVE_DONE=0
+DRY=0; REMOVE_DONE=0; ENABLE_FEATURES=0
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
     --remove-done-workflows) REMOVE_DONE=1 ;;
+    --enable-repo-features) ENABLE_FEATURES=1 ;;
     *) echo "unknown option: $a" >&2; exit 2 ;;
   esac
 done
@@ -61,6 +67,42 @@ else
   OWNER_KIND=user; URL_KIND=users
 fi
 ACTIONS=0
+
+# --- 0. Repository features ---------------------------------------------------
+# Proof files work as issues, and parks worked-out ideas as Discussions in the
+# "Ideas" category (/proof-spec, /proof-plan, the overlap check). Both can be
+# switched off per repository. gh can turn them on; nothing in GitHub's API can
+# create a discussion category, so a missing Ideas category is reported.
+say "Repository: $OWNER/$REPO"
+read -r HAS_ISSUES HAS_DISCUSSIONS <<<"$(gh api "repos/$OWNER/$REPO" -q '"\(.has_issues) \(.has_discussions)"' 2>/dev/null)"
+OFF=()
+[ "$HAS_ISSUES" = "true" ] || OFF+=("Issues")
+[ "$HAS_DISCUSSIONS" = "true" ] || OFF+=("Discussions")
+if [ ${#OFF[@]} -eq 0 ]; then
+  say "  issues and discussions on"
+elif [ "$ENABLE_FEATURES" = 1 ]; then
+  for f in "${OFF[@]}"; do
+    [ "$DRY" = 1 ] && { say "  would turn on: $f"; continue; }
+    case "$f" in
+      Issues) run gh repo edit "$OWNER/$REPO" --enable-issues >/dev/null 2>&1 && say "  turned on: Issues" || say "  could not turn on Issues" ;;
+      Discussions) run gh repo edit "$OWNER/$REPO" --enable-discussions >/dev/null 2>&1 && say "  turned on: Discussions" || say "  could not turn on Discussions" ;;
+    esac
+  done
+  [ "$DRY" = 0 ] && HAS_DISCUSSIONS="$(gh api "repos/$OWNER/$REPO" -q .has_discussions 2>/dev/null)"
+else
+  say "  DECIDE (repo-features) — switched off on this repository: ${OFF[*]}"
+  say "    Turn on: re-run with --enable-repo-features, or https://github.com/$OWNER/$REPO/settings → Features"
+fi
+if [ "$HAS_DISCUSSIONS" = "true" ] && [ "$DRY" = 0 ]; then
+  if gh api graphql -f query='query($o:String!,$r:String!){repository(owner:$o,name:$r){discussionCategories(first:50){nodes{name}}}}' \
+       -f o="$OWNER" -f r="$REPO" -q '.data.repository.discussionCategories.nodes[].name' 2>/dev/null | grep -qxF "Ideas"; then
+    say "  Ideas discussion category present"
+  else
+    say "  ACTION NEEDED (ideas-category) — Discussions has no \"Ideas\" category; /proof-spec parks ideas there."
+    say "    https://github.com/$OWNER/$REPO/discussions/categories/new → Name: Ideas, Format: Open-ended discussion"
+    ACTIONS=1
+  fi
+fi
 
 # --- 1. Project board -------------------------------------------------------
 say "Board: '$BOARD_NAME' (owner: $OWNER)"

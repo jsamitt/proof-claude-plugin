@@ -7,6 +7,20 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-06 — /proof-init turns on the GitHub features Proof depends on
+
+**Decision:** `setup-board.sh` checks that Issues and Discussions are on and that an
+*Ideas* discussion category exists. Features that are off are reported as a decision, and
+switched on with `gh repo edit` only after the user agrees (`--enable-repo-features`). A
+missing category is walked through, since the API cannot create one. `/proof-spec` checks
+before offering the Discussion landing and says when it is unavailable.
+**Why:** Discussions are off on many repositories, so `/proof-spec`'s "park it as a
+Discussion" option failed late, after the spec was written.
+**Gotcha:** GitHub's GraphQL `hasDiscussionsEnabled` and REST `has_discussions` can briefly
+disagree right after the setting changes. Re-read before concluding either way.
+**Rejected:** turning features on silently. Discussions add a public tab on a public
+repository, which is the owner's call.
+
 ## 2026-10-05 — Small designs are made in the spec; every design is recorded in the issue
 
 **Decision:** `/proof-spec` can design a small visual change itself, on a Claude Design

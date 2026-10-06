@@ -235,6 +235,13 @@ Then ask — always, every run, even when the answer seems obvious:
 > **1. Issue** — committed work. Goes on the board at Ready to Dev, buildable now.
 > **2. Discussion** — a worked-out concept, parked. Not on the board, nothing owed.
 
+Before asking, check that the repository can take a Discussion:
+`gh api repos/{owner}/{repo} -q .has_discussions`, and an *Ideas* category. If either is
+missing, say so in the question: option 2 is unavailable until Discussions are on (with
+an Ideas category), and `/proof-init --refresh` will set that up. Do not quietly drop the
+option, and do not create the issue anyway when the user wanted to park it. Ask whether
+to land it as an issue, or stop and set up Discussions first.
+
 Say which you would pick and why, in one line. The honest default is an **issue** when
 the user came in wanting to build the thing, and a **Discussion** when the conversation
 kept opening questions rather than closing them, when it depends on something that does
