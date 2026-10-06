@@ -46,3 +46,17 @@ A `null` command or empty array means *the project does not have this*. Skip tha
 step and say so plainly in your output. Never substitute a command you guessed from
 the file tree — if `commands.test` is null, there is no test step, full stop.
 If you believe the project *should* have one, raise it as discovered work.
+
+## Missing keys are not null
+
+A key that is **absent** is different from one set to `null`. Absent usually means the
+config was written by an older Proof, before the key existed. The project never decided
+it does not have the thing. So for an absent key:
+
+- **Say so once** in your output: *"`ship.changelog` isn't in `.claude/harness.json`. It
+  was probably set up by an older Proof. Run `/proof-init --refresh` to record it."*
+- **Then fall back sensibly** where the skill's own partial says how (the changelog
+  partial looks for a `CHANGELOG.md`). Where it doesn't, treat it as `null` for this run.
+
+Never skip a step silently because of an absent key. A silent skip looks exactly like
+"this project has nothing to do here", and nobody finds out until something is missing.

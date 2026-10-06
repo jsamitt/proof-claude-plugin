@@ -2,7 +2,14 @@
 
 Used by `/proof-work` and `/proof-fix` (one entry per change) and `/proof-ship` (turning
 those entries into a release). Read `ship.changelog` and `ship.store_notes` from the
-config. If `ship.changelog` is null, the project keeps no changelog — skip all of this.
+config.
+
+- **`ship.changelog` is a path:** use that file.
+- **It is `null`:** the project keeps no changelog. Skip all of this, and say so in one line.
+- **It is absent** (an older config, see `_partials/config.md`): if a `CHANGELOG.md` exists
+  at the repo root, use it, and say once that the config should record it via
+  `/proof-init --refresh`. If none exists, skip, and say why in one line.
+- **`ship.store_notes` absent:** treat it as `false`, and mention it in the same line.
 
 ## Why entries are written with each change, not at release time
 

@@ -206,18 +206,40 @@ fi
 
 # --- 4. Workflows -----------------------------------------------------------
 if [ -n "${PROJECT_ID:-}" ]; then
-  gh api graphql -f query='query($id:ID!){node(id:$id){... on ProjectV2{workflows(first:50){nodes{id name enabled}}}}}' \
-    -f id="$PROJECT_ID" -q '.data.node.workflows.nodes[] | "\(.id)\t\(.name)\t\(.enabled)"' > "$TMP/wf.tsv" 2>/dev/null
+  gh api graphql -f query='query($id:ID!){node(id:$id){... on ProjectV2{workflows(first:50){nodes{id name enabled updatedAt}}}}}' \
+    -f id="$PROJECT_ID" -q '.data.node.workflows.nodes[] | "\(.id)\t\(.name)\t\(.enabled)\t\(.updatedAt)"' > "$TMP/wf.tsv" 2>/dev/null
 
   # 4a. Auto-add. Proof puts an issue on the board only when one of its skills
-  # touches it; issues opened anywhere else need this. The API can read it but
-  # cannot create or enable it.
-  if grep -q $'\tAuto-add to project\ttrue$' "$TMP/wf.tsv"; then
-    say "  auto-add workflow on"
+  # touches it; issues opened anywhere else need this. The API can read whether
+  # it is enabled, but not its filter, and cannot create or enable it. GitHub
+  # pre-fills the filter with label:bug, which silently skips every other issue,
+  # so "enabled" proves little: check behaviour instead. Any open issue created
+  # after the workflow was last saved that is missing from the board means the
+  # filter is excluding it. Runs before step 6 adds missing issues.
+  AUTOADD_LINE="$(awk -F'\t' '$2=="Auto-add to project" && $3=="true"' "$TMP/wf.tsv" | head -1)"
+  if [ -n "$AUTOADD_LINE" ]; then
+    AUTOADD_SINCE="$(printf '%s' "$AUTOADD_LINE" | cut -f4 | cut -c1-10)"
+    gh project item-list "$NUM" --owner "$OWNER" --limit 1000 --format json \
+      -q '.items[].content.url' > "$TMP/on-board-now.txt" 2>/dev/null
+    SKIPPED="$(gh issue list --state open --limit 200 --search "created:>$AUTOADD_SINCE" \
+      --json url,title -q '.[] | "\(.url)\t\(.title)"' 2>/dev/null \
+      | while IFS=$'\t' read -r u t; do
+          [ -n "$u" ] && [ "$t" != "Proof digest" ] && ! grep -qxF "$u" "$TMP/on-board-now.txt" && printf '%s\n' "$t"
+        done)"
+    if [ -n "$SKIPPED" ]; then
+      say "  ACTION NEEDED (auto-add-filter) — auto-add is on, but it skipped issues opened since it was set up:"
+      printf '%s\n' "$SKIPPED" | head -5 | while IFS= read -r t; do say "    • $t"; done
+      say "    Its filter is probably GitHub's pre-filled one (\"... label:bug\"). Change it at"
+      say "    $BOARD_URL/workflows → 'Auto-add to project' → Edit → Filter: is:issue,pr is:open"
+      ACTIONS=1
+    else
+      say "  auto-add workflow enabled. Its filter can't be read: confirm it is exactly \"is:issue,pr is:open\""
+      say "    (GitHub pre-fills \"label:bug\", which skips everything else)"
+    fi
   else
     say "  ACTION NEEDED (auto-add) — new issues will not reach the board on their own."
     say "    $BOARD_URL/workflows → 'Auto-add to project' → Edit"
-    say "    Repository: $REPO   Filter: is:issue,pr is:open   → Save and turn on"
+    say "    Repository: $REPO   Filter: replace GitHub's pre-filled one with exactly: is:issue,pr is:open   → Save and turn on"
     ACTIONS=1
   fi
 

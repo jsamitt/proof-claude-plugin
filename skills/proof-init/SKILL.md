@@ -59,6 +59,13 @@ in their CI file is how a setup tool earns a reputation for being tedious.
 
 Copy `templates/harness.json` and fill it in. Rules:
 
+- **Refreshing (`--refresh`):** compare the existing config with the current
+  `templates/harness.json`. Every key the template has and the config lacks was added in
+  a newer Proof (for example `ship.changelog`, `ship.store_notes`, `goals`,
+  `labels.needs_design`). Ask about each, in the step 2 order, inferring an answer where
+  you can (a `CHANGELOG.md` → `ship.changelog`). Keep every existing value the user has
+  not changed, and say which keys you added.
+
 - Run each command you record once, if it is safe and quick. A command that fails
   **today** can go in `commands`, but not in `verify.steps`. Otherwise every piece of work
   fails verification before it starts. Tell the user it fails and why.
@@ -133,12 +140,20 @@ confirmation.
      cannot recreate built-in workflows.
    - **Turn them off by hand** (reversible): `<board>/workflows` → each one → toggle off.
    - **Keep them.**
-4. **`ACTION NEEDED (auto-add)`**. Without it, only issues a Proof skill touches reach the
-   board. Issues opened on the GitHub website or by other tools never do. Steps:
-   `<board>/workflows` → *Auto-add to project* → Edit → Repository: this repo → Filter:
-   `is:issue,pr is:open` → Save and turn on. Free accounts get one auto-add workflow.
-   When the user says done, re-run the script and confirm it prints `auto-add workflow on`.
-   If it doesn't, say what the script sees and go through it again.
+4. **`ACTION NEEDED (auto-add)`** or **`ACTION NEEDED (auto-add-filter)`**. Without
+   auto-add, only issues a Proof skill touches reach the board; issues opened on the
+   GitHub website or by other tools never do. Steps: `<board>/workflows` → *Auto-add to
+   project* → Edit → Repository: this repo → Filter → Save and turn on. Free accounts get
+   one auto-add workflow.
+   **The filter is the trap.** GitHub pre-fills it with `label:bug` (for example
+   `is:issue,pr is:open label:bug`), which silently skips every issue that isn't a bug.
+   Tell the user to **replace** it with exactly `is:issue,pr is:open`, and ask them to
+   read back what the filter box says. The API can see that auto-add is on but never its
+   filter, so the user's read-back is the only direct check.
+   Then re-run the script. It checks behaviour: any open issue created since auto-add was
+   saved that isn't on the board is reported as `auto-add-filter`. With no new issues
+   yet, it can't prove the filter either way. Say so, and record the user's read-back as
+   the confirmation.
 5. **`CHECK (default-repo)`**: where *+ Add item* on the board creates issues. Steps:
    `<board>/settings` → Default repository → this repo. Nothing can read this setting,
    so ask the user to confirm it's set, and record that the confirmation is theirs.
