@@ -13,7 +13,7 @@
     "Reliable on real projects — skills and hooks work first time on projects like Samitt.com, with no setup traps"
   ],
   "commands": {
-    "test": "bash tests/pre-bash-guard.test.sh",
+    "test": "for t in tests/*.test.sh; do bash \"$t\" || exit 1; done",
     "typecheck": null,
     "lint": "claude plugin validate .",
     "build": null,
@@ -71,6 +71,9 @@
       "Proof carries no project facts: skills must never hardcode one project's commands, names or URLs — those belong in harness.json.",
       "Scripts must run on macOS's bash 3.2."
     ]
+  },
+  "models": {
+    "builder_min": null
   },
   "design": {
     "tokens": null,
