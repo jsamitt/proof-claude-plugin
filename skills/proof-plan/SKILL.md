@@ -1,6 +1,7 @@
 ---
 name: proof-plan
 description: Use periodically — not part of every issue — to decide what to work on next and in what order, re-check priorities that have gone stale, and optionally clean up duplicate, superseded or abandoned issues. Proposes; changes nothing without approval
+model: opus
 ---
 
 # Plan

@@ -7,6 +7,40 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-12 — Model tiers last one turn; the build runs on a model the developer picks
+
+**Decision:** Each skill names a model in its frontmatter. `/proof-work` and `/proof-fix`
+plan on Opus, recommend a builder model, and build in the `proof-builder` agent on the
+model chosen at approval (`approve, here` builds in the session). The main session runs
+`verify.steps` itself; two failed fix attempts on a builder that is not Opus escalate to
+Opus without pausing.
+**Why:** The build is most of an issue's cost, and the approval pause is already the
+moment the developer reads the plan, so choosing the model there costs nothing extra.
+Escalating without asking keeps `/proof-work`'s single pause.
+**Rejected:** Making every skill delegate its work to agents so tiers hold across a whole
+conversation — a rewrite of all eleven skills, and the conversational ones lose their
+back-and-forth. Advice-only (each skill tells you to `/model`) — moves the job onto the
+developer every run.
+
+**Gotcha:** A skill's `model:` applies for the rest of the current turn only; the
+session's model resumes at the developer's next message. So a tier holds for a skill that
+runs start to finish, and only for the first reply of a conversational one.
+`context: fork` would hold a model for a whole skill, but a forked skill cannot talk to
+the developer.
+
+**Gotcha:** `claude plugin validate` does not check `model:` values — `model: haikuu`
+passes. `tests/frontmatter.test.sh` checks them instead, along with each skill's tier and
+the unquoted-": " YAML trap.
+
+**Verified (2026-10-12):** Proof's PreToolUse guards fire inside a subagent. A builder-like
+subagent's `git push --dry-run origin main` was refused by the bash guard, and its Write to
+`yarn.lock` by the write guard. The Stop hook does not fire when a subagent finishes —
+which is why the main session, not the builder, runs `verify.steps`.
+
+**Gotcha:** A pause that used to accept any reply must keep accepting it. Approval is read
+by intent ("yes", "looks good"), with `approve, <model>` and `approve, here` as extras —
+a fixed vocabulary turned the commonest replies into plan revisions.
+
 ## 2026-10-06 — Protect the default branch for one person, from real check names
 
 **Decision:** `/proof-init` offers a GitHub ruleset for the default branch: no deletion or

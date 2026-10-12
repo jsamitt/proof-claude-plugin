@@ -58,6 +58,9 @@
     ],
     "risk_focus": []
   },
+  "models": {
+    "builder_min": null
+  },
   "design": {
     "tokens": null,
     "reference": null,
