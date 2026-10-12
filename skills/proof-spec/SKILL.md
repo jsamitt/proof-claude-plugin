@@ -74,14 +74,20 @@ the board off, read its labels and open pull requests instead.
 | `backlog`, or already at `spec_draft` | Carry on |
 
 Once the overlap check is settled and the user has committed to speccing this issue, move it
-to `spec_draft` per `_partials/board.md` and remove the `ready` label. Never before: a check
-that ends in "stop here" leaves the issue as it was. Only the issue actually being specced
-moves.
+to `spec_draft` per `_partials/board.md`. Never before: a check that ends in "stop here"
+leaves the issue as it was. Only the issue actually being specced moves. **An issue that
+was `ready`** keeps its stage and `ready` label until the draft is posted in step 10a, and
+gets them back if the user then answers *Not now*: its approved spec is still its body.
 
-**A draft already waiting?** If the issue is at `spec_draft` with a spec draft from an
-earlier run (step 10a), show it and ask: approve it as it is, revise it, or start again.
-Approving or revising goes straight to step 10a, and the settlements in the draft's Notes
-still apply.
+**A draft already waiting?** A waiting draft is the issue's one comment headed **Spec
+draft — awaiting approval** that is not marked Approved or Superseded — or, for an issue
+this skill created, its body while it has no `ready` label and no **Spec approved**
+comment. Look for the comment, not the stage, so this works with the board off. An issue
+with a **Spec approved — waiting for the design** comment is not waiting for approval. If
+there is one, show it and ask: approve it as it is, revise it, or start again (mark the
+old comment **Superseded**). Approving or revising goes straight to step 10a; the
+settlements in the draft's Notes still apply, and steps 11 and 12 run afterwards, taking
+the Spec capture from the draft's Approach and Notes.
 
 ## 2. Ground first
 
@@ -364,11 +370,14 @@ freeze carry-over"). Body:
 - **A new idea:** create the issue with this body and, per `_partials/board.md`, add it
   to the board at `spec_draft`.
 - **An existing issue:** leave its body alone for now and post the draft as a comment
-  headed **Spec draft — awaiting approval**. The body is replaced only on approval, so a
-  spec that is never approved leaves the issue's text as it was. (It moved to
-  `spec_draft` in step 1.)
-- **A split:** the parent goes to `backlog` and never takes this approval step or the
-  `ready` label (step 3). Each child is created at `spec_draft`.
+  headed **Spec draft — awaiting approval**. Keep it to that one comment, edited in
+  place as the draft changes. The body is replaced only on approval, so a spec that is
+  never approved leaves the issue's text as it was. (It moved to `spec_draft` in step 1,
+  or moves now if it was `ready`.)
+- **A split:** each child is created at `spec_draft`. The parent goes to `backlog`.
+- **Any parent** (an issue with sub-issues, new or existing) never moves stage and never
+  gets the `ready` label (step 3). Its draft is still approved like any other: approval
+  replaces its body and sets its P-label, and nothing else.
 
 No `ready` label and no P-label yet. The draft's Notes list what approval will do to
 other issues, from step 1.
@@ -385,10 +394,12 @@ and change others. With the board off, say "waiting for your approval" rather th
 naming a stage.
 
 **Called from `/proof-handoff`** for a design that came first: the handoff's own approval
-is the spec approval. Create the issue and go straight to *Approved* without asking again.
+is the spec approval, and the design already exists. Create the issue and go straight to
+*Approved* on the `ready` path, without asking again and without `needs_design` or the
+waiting-for-design comment.
 
-- **Changes:** revise the draft where it lives (the new issue's body, or the draft
-  comment), show what changed, and ask again. It stays at `spec_draft`.
+- **Changes:** revise the draft where it lives (the new issue's body, or the one draft
+  comment, edited in place), show what changed, and ask again. It stays at `spec_draft`.
 - **Approved:** only now, per `_partials/board.md`:
   - an existing issue's body is replaced with the approved draft, and the draft comment
     is marked **Approved**
@@ -398,8 +409,8 @@ is the spec approval. Create the issue and go straight to *Approved* without ask
   - **to be designed elsewhere:** the same labels except `ready`, plus `needs_design`.
     It stays at `spec_draft` until `/proof-handoff` records the design. Comment **Spec
     approved — waiting for the design** so it does not read like an unapproved draft
-- **Not now:** leave it at `spec_draft` and say so. Do not move it, and do not apply
-  what step 1 settled.
+- **Not now:** leave it at `spec_draft` and say so — or, if it was `ready` before this
+  run, put it back at `ready` with its label. Do not apply what step 1 settled.
 - **Unclear, or a reply to something else:** answer it if it was a question, then ask
   the approval question again. Never move the stage on an unclear reply. If the session
   ends without an answer, treat it as *Not now*.

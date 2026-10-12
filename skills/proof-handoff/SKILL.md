@@ -39,6 +39,10 @@ Then `project.docs`, and any `learnings.file` entries touching this area.
 **The issue.** Its problem, acceptance criteria and out-of-scope list are what the design
 is checked against. It usually carries the `needs_design` label from `/proof-spec`.
 
+**A spec still waiting for approval?** If the issue has a **Spec draft — awaiting
+approval** comment not marked Approved, stop: the design would be checked against a spec
+nobody has agreed to. Point to `/proof-spec {n}` to approve or revise it first.
+
 **No issue number?** The design came first. Say so, then run `/proof-spec`'s steps 1–7 in
 short form, letting the design answer what it can — ask only what it cannot show: what
 problem this solves, for whom, how important it is. Present the draft issue; it is created
