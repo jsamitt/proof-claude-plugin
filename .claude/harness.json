@@ -15,7 +15,7 @@
   "commands": {
     "test": "for t in tests/*.test.sh; do bash \"$t\" || exit 1; done",
     "typecheck": null,
-    "lint": "claude plugin validate .",
+    "lint": "claude plugin validate . && claude plugin validate .claude-plugin/plugin.json",
     "build": null,
     "run": null
   },
