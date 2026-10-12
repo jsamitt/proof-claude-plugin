@@ -42,6 +42,11 @@ any `learnings.file` entries touching this area.
 **If the issue has the `needs_design` label**, stop: it is waiting for a design. Say so,
 and point to `/proof-handoff {n} <link>`.
 
+**If the spec is not approved** — the issue has neither the `ready` label nor
+`in_progress` (a resume, below) — stop. An issue at `spec_draft` is a spec still waiting
+for approval: say so, and point to `/proof-spec {n}`, which offers to approve the waiting
+draft. Build it anyway only if the user says to.
+
 **If the issue has a `## Design` section**, read `_partials/design-record.md` and the
 frozen copy it points to. The design is part of the contract: each state's criteria are
 acceptance criteria like any other. If the frozen copy is missing, or a state in the

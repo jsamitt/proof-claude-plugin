@@ -1,6 +1,6 @@
 ---
 name: proof-spec
-description: Use when turning an idea into something buildable — first checks it against the board for anything it overlaps, supersedes or contradicts and settles each, then explores the problem, proposes approaches, writes user stories and acceptance criteria, rates priority, and asks whether it lands as a board-tracked issue or a parked GitHub Discussion; splits oversized work into a parent with sub-issues. Part of every issue
+description: Use when turning an idea into something buildable — first checks it against the board for anything it overlaps, supersedes or contradicts and settles each, then explores the problem, proposes approaches, writes user stories and acceptance criteria, rates priority, asks whether a new idea lands as a board-tracked issue or a parked GitHub Discussion, and holds an issue at Spec Draft until the user approves the spec; splits oversized work into a parent with sub-issues. Part of every issue
 model: opus
 ---
 
@@ -9,11 +9,15 @@ model: opus
 Turns a thought into something you can build from without asking follow-up questions.
 This is the only planning stage — no separate idea tier, no separate technical spec.
 
-The same conversation ends in one of two places, and **the skill always asks which**:
+A new idea ends in one of two places, and **the skill always asks which**:
 a GitHub **issue** (committed work, goes on the board) or a GitHub **Discussion**
 (a worked-out concept, deliberately *not* on the board). There is no mode to remember
 and no flag to pass — you are asked at the end, once the draft exists and the choice
-is an informed one.
+is an informed one. Speccing an issue that already exists skips that question: it is
+already an issue.
+
+An issue waits at **Spec Draft** until the user approves the spec. Only an explicit
+approval moves it to Ready to Dev — choosing where it lands is not approval.
 
 ```
 /proof-spec "unused streak freezes should carry over to next week"
@@ -35,8 +39,8 @@ touching this area — say which past decisions you are applying.
 6. Cut the scope
 7. Rate priority — propose, then adjust
 8. Design it, if it is visual — here, elsewhere, or not at all
-9. Present the draft, then **ask where it lands** — issue or Discussion
-10. Create it and apply what step 1 settled; an issue goes on the board `spec_draft` → `ready`, a Discussion does not
+9. Present the draft, then **ask where it lands** — issue or Discussion. Skipped for an existing issue
+10. An issue: put the draft on it at `spec_draft`, **ask for approval**, and only then move it to `ready` and apply what step 1 settled. A Discussion: write it, off the board
 11. Capture the spec learnings
 12. Present discovered work
 
@@ -52,7 +56,38 @@ changes what the rest of the spec is about. *Spec the existing issue instead* sw
 straight to speccing that issue.
 
 Settle, do not apply. Write down what was decided and carry it through the spec; the
-changes to other issues happen in step 10, when this one is created.
+changes to other issues happen in step 10a once the spec is approved, or in step 10b when
+the Discussion is written. Put them in the draft's Notes ("On approval: closes #12 as a
+duplicate") so they survive a pause.
+
+### Speccing an existing issue
+
+When the spec is for an issue that already exists — given as `/proof-spec <n>`, or reached
+through *Spec the existing issue instead* — check where it stands before touching it. With
+the board off, read its labels and open pull requests instead.
+
+| Where it is | What to do |
+|---|---|
+| `in_dev` or `in_review`, has an open pull request, or is closed | **Stop and ask.** Re-speccing work that is being built changes the ground under it. Offer: finish it first, stop it, or spec the change as a new issue |
+| `ready` | Its spec is already approved. Ask whether to re-spec it before changing anything |
+| A parent with sub-issues | It stays at `backlog` for life (step 3). Spec it, but never move it to `spec_draft` or `ready` |
+| `backlog`, or already at `spec_draft` | Carry on |
+
+Once the overlap check is settled and the user has committed to speccing this issue, move it
+to `spec_draft` per `_partials/board.md`. Never before: a check that ends in "stop here"
+leaves the issue as it was. Only the issue actually being specced moves. **An issue that
+was `ready`** keeps its stage and `ready` label until the draft is posted in step 10a, and
+gets them back if the user then answers *Not now*: its approved spec is still its body.
+
+**A draft already waiting?** A waiting draft is the issue's one comment headed **Spec
+draft — awaiting approval** that is not marked Approved or Superseded — or, for an issue
+this skill created, its body while it has no `ready` label and no **Spec approved**
+comment. Look for the comment, not the stage, so this works with the board off. An issue
+with a **Spec approved — waiting for the design** comment is not waiting for approval. If
+there is one, show it and ask: approve it as it is, revise it, or start again (mark the
+old comment **Superseded**). Approving or revising goes straight to step 10a; the
+settlements in the draft's Notes still apply, and steps 11 and 12 run afterwards, taking
+the Spec capture from the draft's Approach and Notes.
 
 ## 2. Ground first
 
@@ -194,7 +229,7 @@ Present the options that apply, **recommendation first**, and let the user pick:
 | Route | When to offer it | What happens |
 |---|---|---|
 | **Design it here** | Small, and Claude Design is available (below) | Claude designs it in this session on a Claude Design canvas, with you, using the project's design system. Recorded in the issue; no hand-off |
-| **Design it elsewhere** | Not small, or the user prefers their own tool | The issue is created with a **brief for the designer** and waits in Spec Draft with the `needs_design` label. When the design is ready, `/proof-handoff {n} <link>` checks it and moves the issue on |
+| **Design it elsewhere** | Not small, or the user prefers their own tool | The issue is created with a **brief for the designer**. Once the spec is approved it gets the `needs_design` label and waits in Spec Draft. When the design is ready, `/proof-handoff {n} <link>` checks it and moves the issue on |
 | **Wireframe** | Layout or flow is the open question, not the look | A self-contained HTML wireframe saved under `docs/features/{issue}-{slug}/mockup.html` — layout only, no polish |
 | **No design** | The criteria already pin it down (a copy change, one new field in an existing form) | Nothing extra |
 
@@ -259,18 +294,23 @@ The states list is what `/proof-handoff` checks the design against, so make it c
 
 ## 9. Present, then ask where it lands
 
-Show the full draft. Revise and re-present until it is right. **Create nothing without
-an explicit go-ahead.**
+Show the full draft. Revise and re-present as the user asks. **Create nothing until the
+user has seen the draft and, for a new idea, chosen where it lands. Nothing reaches
+Ready until they approve it in step 10a.**
+
+**Speccing an existing issue** (given as `<n>`, or reached through *Spec the existing
+issue instead*)? Do not ask where it lands. It is already an issue, so go straight to
+step 10a.
 
 Include what step 1 settled and what it will do to other issues ("closes #12 as a
-duplicate; updates #19's criteria"), so the go-ahead covers those too. If the scope moved
+duplicate; updates #19's criteria"), so the approval covers those too. If the scope moved
 a long way during the conversation, re-run the overlap check on what is new before
 presenting — the idea that was checked may not be the idea being approved.
 
-Then ask — always, every run, even when the answer seems obvious:
+For a new idea or a Discussion being picked up, ask — always, even when the answer seems obvious:
 
 > Where should this land?
-> **1. Issue** — committed work. Goes on the board at Ready to Dev, buildable now.
+> **1. Issue** — committed work. Goes on the board at {board.stages.spec_draft} for your approval, then {board.stages.ready}.
 > **2. Discussion** — a worked-out concept, parked. Not on the board, nothing owed.
 
 Before asking, check that the repository can take a Discussion:
@@ -289,7 +329,7 @@ Low-confidence rating is also a strong signal toward a Discussion.
 Asking costs one keystroke. Guessing wrong puts a maybe on the board, and a board full
 of maybes is one nobody looks at.
 
-## 10a. Create the issue (if that is the answer)
+## 10a. The issue: Spec Draft, approval, then Ready
 
 Title as a capability, not a task ("Unused freezes carry over to next week", not "Add
 freeze carry-over"). Body:
@@ -325,14 +365,63 @@ freeze carry-over"). Body:
 | Confidence | ... | ... |
 ```
 
-Then, per `_partials/board.md`: add to the board, set `spec_draft`, and immediately
-move to `ready` with the `ready` label — the spec was approved in step 9, so the issue
-is ready the moment it exists. **Except when it is to be designed elsewhere:** it stays at
-`spec_draft` with the `needs_design` label until `/proof-handoff` records the design. Apply the P-label, and `investigate` if confidence is Low. Speccing an existing issue updates it in place.
+**Put the draft where the user can see it, at `spec_draft`.**
 
-Then apply what step 1 settled, per `_partials/overlap.md`: comment on and update, close,
-or attach as a sub-issue, and record the links in the new issue's Notes. Report each
-change with a link.
+- **A new idea:** create the issue with this body and, per `_partials/board.md`, add it
+  to the board at `spec_draft`.
+- **An existing issue:** leave its body alone for now and post the draft as a comment
+  headed **Spec draft — awaiting approval**. Keep it to that one comment, edited in
+  place as the draft changes. The body is replaced only on approval, so a spec that is
+  never approved leaves the issue's text as it was. (It moved to `spec_draft` in step 1,
+  or moves now if it was `ready`.)
+- **A split:** each child is created at `spec_draft`. The parent goes to `backlog`.
+- **Any parent** (an issue with sub-issues, new or existing) never moves stage and never
+  gets the `ready` label (step 3). Its draft is still approved like any other: approval
+  replaces its body and sets its P-label, and nothing else.
+
+No `ready` label and no P-label yet. The draft's Notes list what approval will do to
+other issues, from step 1.
+
+**Then ask for approval** — a separate question, every time, even right after the user
+chose *Issue*:
+
+> #{n} is at {board.stages.spec_draft}: {link}
+> Approving also {closes #12 as a duplicate; updates #19's criteria}. ← only if step 1 settled anything
+> Approve the spec, or tell me what to change.
+
+For a split, ask once for the whole set and list each child; the user can approve some
+and change others. With the board off, say "waiting for your approval" rather than
+naming a stage.
+
+**Called from `/proof-handoff`** for a design that came first: the handoff's own approval
+is the spec approval, and the design already exists. Create the issue and go straight to
+*Approved* on the `ready` path, without asking again and without `needs_design` or the
+waiting-for-design comment.
+
+- **Changes:** revise the draft where it lives (the new issue's body, or the one draft
+  comment, edited in place), show what changed, and ask again. It stays at `spec_draft`.
+- **Approved:** only now, per `_partials/board.md`:
+  - an existing issue's body is replaced with the approved draft, and the draft comment
+    is marked **Approved**
+  - it moves to `ready` with the `ready` label, its P-label, and `investigate` if
+    confidence is Low. Replace, never add: remove any other P-label, and `investigate`
+    if confidence is no longer Low
+  - **to be designed elsewhere:** the same labels except `ready`, plus `needs_design`.
+    It stays at `spec_draft` until `/proof-handoff` records the design. Comment **Spec
+    approved — waiting for the design** so it does not read like an unapproved draft
+- **Not now:** leave it at `spec_draft` and say so — or, if it was `ready` before this
+  run, put it back at `ready` with its label. Do not apply what step 1 settled.
+- **Unclear, or a reply to something else:** answer it if it was a question, then ask
+  the approval question again. Never move the stage on an unclear reply. If the session
+  ends without an answer, treat it as *Not now*.
+
+Read approval by intent: a clear yes with no changes ("approve", "looks good", "yes")
+approves; anything that asks for a change is a change, even if it starts with "yes".
+Choosing *Issue* in step 9, or a reply to some other question, is never approval.
+
+After approval, apply what step 1 settled, per `_partials/overlap.md`: comment on and
+update, close, or attach as a sub-issue, and record the links in the issue's Notes.
+Report each change with a link.
 
 ## 10b. Write the Discussion (if that is the answer)
 
@@ -364,6 +453,10 @@ on the Discussion with a link to it so the trail closes.
 
 ## 11. Learnings
 
+Runs once the spec is approved, or the Discussion is written. Left at `spec_draft`? Skip
+it, including any proposal to supersede a decision. The draft already holds the
+reasoning, and it is captured when the spec is approved.
+
 Per `_partials/learnings.md`, post the **Spec** capture: the decision, why, and which
 alternative was rejected. This is the entry you will most want later — it is the only
 record of why the other two options lost. If a durable decision came out of it, propose
@@ -377,6 +470,8 @@ File only what is approved.
 
 ## Hand back
 
-The issue (or Discussion) URL and its stage.
+The issue (or Discussion) URL and its stage — for an issue, the stage confirmed from
+the board, never assumed (with the board off, its labels). Left at `spec_draft`? Say so,
+and that `/proof-spec {n}` picks the draft up again.
 
 Then **ask what to do next**, per `_partials/chain.md` — never start the next step unasked.

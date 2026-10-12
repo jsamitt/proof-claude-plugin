@@ -77,11 +77,11 @@ Which way on each? ("a, b: update #19, c" — or tell me what you would do diffe
 
 Rules that hold whatever is chosen:
 
-- **Record now, apply at creation.** Changes to other issues are applied in the same
-  step that creates the new issue or Discussion — never earlier. If the spec is
-  abandoned halfway, nothing else has been touched. The one exception is *spec the
-  existing issue instead*: switch to speccing that issue straight away, which changes
-  nothing either.
+- **Record now, apply on commitment.** Changes to other issues are applied when the
+  spec is approved (an issue) or written (a Discussion) — never earlier. If the spec is
+  abandoned halfway, or left at Spec Draft, nothing else has been touched. The one
+  exception is *spec the existing issue instead*: switch to speccing that issue straight
+  away, which only moves it to Spec Draft.
 - **In-flight work is never closed or rewritten.** If the other issue is In Dev or In
   Review, or has an open pull request, stop and ask: finish that first, stop it, or
   reshape this spec around it.

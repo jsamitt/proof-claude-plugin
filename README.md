@@ -104,7 +104,7 @@ designed in another tool.
 
 | Command | What it does |
 |---|---|
-| `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → user stories, acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? |
+| `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → user stories, acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? An issue waits at Spec Draft until you approve the spec; `/proof-spec <n>` on an existing issue skips the question |
 | `/proof-handoff <issue> <link>` | For a design made in another tool: sorts every element into exists / new / not buildable as drawn, checks every state has a frame, and writes the revisions for the design tool. Repeat until nothing blocks; then it records the design and the issue is ready to build |
 | `/proof-work <issue>` | Plan, with a recommended builder model → *you approve* (and pick the model) → build, verify, keep docs true, PR. Pauses again only for a decision the plan did not anticipate. Resumes from its checkpoint if interrupted |
 | `/proof-fix "<symptom>"` | For bugs: reproduce → root cause, proven → *you approve* the fix and its builder model → fix with a test that fails before and passes after → PR |
