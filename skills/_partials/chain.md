@@ -32,7 +32,8 @@ does not ask again what to work on.
 
 | After | Recommended next | Also offer |
 |---|---|---|
-| `/proof-spec` → issue | **Build it** — `/proof-work {n}` | Spec another · Pick up a different issue · Pause |
+| `/proof-spec` → issue approved, at Ready | **Build it** — `/proof-work {n}` | Spec another · Pick up a different issue · Pause |
+| `/proof-spec` → issue left at Spec Draft, not approved | **Approve or revise the spec** — `/proof-spec {n}` | Pick up a different issue · Pause |
 | `/proof-spec` → issue to be designed elsewhere | **Design it** in your design tool from the brief, then `/proof-handoff {n} <link>` | Spec another · Pick up a different issue · Pause |
 | `/proof-handoff` → design still blocked | **Revise the design** with the revisions note, then `/proof-handoff {n} <new link>` | Settle the blocking items as exceptions or spec changes · Pause |
 | `/proof-handoff` → recorded | **Build it** — `/proof-work {n}` | Pick up a different issue · Pause |
@@ -55,7 +56,8 @@ Two things specific to shipping:
 Show the top three from `/proof-plan`'s ordering (finish in-flight work first, then
 unblockers, investigations, neighbours, priority) — the recommendation only, without its
 cleanup pass. Let the user pick one, then start the right skill for it: `/proof-work` for a
-ready issue, `/proof-fix` for a bug, `/proof-spec` for anything not yet specced.
+ready issue, `/proof-fix` for a bug, `/proof-spec` for anything not yet specced or still
+waiting for approval at Spec Draft.
 
 ## "Pause here"
 

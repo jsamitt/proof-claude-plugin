@@ -7,6 +7,22 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-12 — A spec waits at Spec Draft until it is explicitly approved
+
+**Decision:** `/proof-spec` puts an issue at Spec Draft and asks a separate question:
+approve the spec, or say what to change. Only an approval moves it to Ready to Dev and
+applies the changes to other issues. Speccing an existing issue skips "issue or
+Discussion?", and its body is replaced only on approval (until then the draft is a
+comment). `/proof-work` refuses an issue without the `ready` label unless it is resuming.
+**Why:** Choosing *Issue* was being read as approval, so a spec went straight to Ready
+to Dev without the developer ever saying yes to it.
+**Rule:** A stage gate is only as strong as the skills that read the stage. Adding one
+means updating every reader of it (`/proof-work`, `/proof-handoff`, the chain) in the
+same change. The first version of this gate lived only in `/proof-spec`, and review found
+`/proof-work` would still build an unapproved spec.
+
+---
+
 ## 2026-10-12 — Model tiers last one turn; the build runs on a model the developer picks
 
 **Decision:** Each skill names a model in its frontmatter. `/proof-work` and `/proof-fix`
@@ -160,8 +176,10 @@ duplicates-only version before filing. One shared partial, `_partials/overlap.md
 **Why:** `/proof-plan --cleanup` only finds these after they are on the board, when the
 context that would settle them has gone. At the door it is one question to someone who
 has just been thinking about exactly this.
-**Rule:** Settle at the start, apply at creation. Nothing about another issue changes
-until the new one exists, so an abandoned spec leaves the board as it found it. In-flight
+**Rule:** Settle at the start, apply on commitment: when the spec is approved, or the
+Discussion is written (amended 2026-10-12; it was "at creation" before specs waited for
+approval). Nothing about another issue changes before then, so an abandoned spec, or one
+left at Spec Draft, leaves the board as it found it. In-flight
 work is never closed, and a Discussion never supersedes an issue.
 **Gotcha:** GitHub's built-in *Item closed* workflow moves every closed issue to the last
 stage, so a duplicate closed by this check, by plan's cleanup or from the digest showed

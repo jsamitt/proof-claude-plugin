@@ -153,7 +153,8 @@ components (from step 3, by their code names), and every decision made in steps 
 Show the record, then **ask before changing the issue**. On approval:
 
 - add the `## Design` section (or update it) and any spec changes agreed in step 5
-- for a design that came first, create the issue now, per `/proof-spec` step 10a
+- for a design that came first, create the issue now, per `/proof-spec` step 10a. The
+  approval you just got is the spec approval, so 10a does not ask again
 - remove the `needs_design` label, and per `_partials/board.md` move the issue to `ready` with the
   `ready` label
 - mark the handoff report comment **Complete**
