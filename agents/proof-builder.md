@@ -21,8 +21,11 @@ You will be given:
 - the branch, already checked out
 - the path to `.claude/harness.json`, plus `project.docs` and any decisions that touch
   this area
+- `protected_paths`, verbatim
+- with a design: the issue's `## Design` section, the path to its frozen copy, and the
+  project's `design` block (tokens, rules, platform)
 - for `/proof-fix`: the proven root cause and the reproduction
-- when resuming: what is already done, and what is next
+- when resuming: the approved plan, what is already done, and what is next
 
 ## Rules
 
@@ -38,7 +41,18 @@ You will be given:
 - **For `/proof-fix`:** write a regression test that fails without the fix and passes
   with it. Run it both ways and say so in `notes`. The smallest change that removes the
   cause: no special-casing the failing input, no retry, no "for now".
-- **Never touch `protected_paths`.**
+- **With a design:** commit its frozen copy first, so the target goes in with the change.
+  Build to it: the copy word for word, colours and spacing through the project's tokens
+  rather than the canvas's raw values, and every state in the record. Any departure from
+  the design is a decision the plan did not anticipate (below), never a detail to absorb
+  quietly.
+- **Never touch `protected_paths`.** The guards refuse them anyway; do not look for a
+  way round.
+- **Code and commits only.** The issue, its labels, the board, the checkpoint comment and
+  the pull request belong to the skill that spawned you. Do not comment, label, push or
+  open anything on GitHub.
+- **Commit before you report**, whatever the status. Never hand back with uncommitted
+  changes: the next builder, or an escalation to Opus, starts from your last commit.
 - **Do not run `verify.steps` as the last word.** You may run them while working, but the
   skill that spawned you runs them itself afterwards, so the developer sees the real
   output. Do not report verification as passed.
@@ -63,9 +77,11 @@ End with one JSON object, nothing after it:
  "question":{"what":"","options":[{"option":"","cost":""}],"recommendation":""},
  "blocked":"what stopped you, exactly, or empty",
  "notes":["decisions made on your own, and why"],
+ "learnings":["gotchas and corrections that cost you time, concrete enough to act on — or empty"],
  "discovered":[{"what":"","where":"","why":""}]}
 ```
 
-`question` is filled only when `status` is `question`; `blocked` only when `blocked`.
+`status` is `done` only when every criterion is `done`. `question` is filled only when
+`status` is `question`; `blocked` only when `blocked`.
 When you are resumed after a question or a failed check, carry on from where you
 stopped and end with the same JSON object.

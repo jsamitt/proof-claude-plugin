@@ -52,8 +52,9 @@ check in `_partials/overlap.md`. A match means working that issue instead, with 
 details added as a comment; a match that was closed as fixed may mean the bug came back,
 which is worth saying before you look for the cause. Only then create one: the symptom
 as the title, the details in the body, the `bug` label, and the P-label from the rating.
-**If there is one**, read it. Either way,
-claim it: `in_progress` on, board to `in_dev`, per `_partials/board.md`.
+**If there is one**, read it; if it is already `in_progress` with a checkpoint, this is a
+resume (see *Resuming* in step 5). Otherwise, claim it: `in_progress` on, board to
+`in_dev`, per `_partials/board.md`.
 
 ## 2. Reproduce it
 
@@ -121,7 +122,15 @@ ways and say so — a test that passes either way proves nothing. If `commands.t
 null there is nowhere to put one: describe the manual repro check instead, and add
 "no automated tests for this area" to discovered work.
 
-Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`.
+Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`,
+including its **Builder** and **Plan** lines; the plan comment for a fix also holds the
+root cause and the reproduction.
+
+**Resuming.** A bug issue that is already `in_progress` with a checkpoint resumes as
+`/proof-work` does (its section 1, and `_partials/builder.md` section 5): reconcile with
+the branch's commits, then carry on from *Next* on the checkpoint's builder. The root
+cause is already proven; do not re-investigate it unless the reproduction no longer
+fails the way the plan comment says.
 
 ## 6. Verify, keep the docs true, add the changelog line
 
@@ -136,7 +145,7 @@ Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`.
 
 ## 7. Learnings, PR, discovered work
 
-- **Learnings:** the root cause is almost always a learning — it was invisible, or it
+- **Learnings:** include any the builder reported. The root cause is almost always a learning — it was invisible, or it
   would not have been a bug. Post a **Build** capture per `_partials/learnings.md`,
   written as a gotcha: the condition and the consequence. If the area keeps breaking,
   say that too; it is the most useful thing the record can hold.

@@ -29,7 +29,17 @@ runs start to finish, and only for the first reply of a conversational one.
 the developer.
 
 **Gotcha:** `claude plugin validate` does not check `model:` values — `model: haikuu`
-passes. `tests/frontmatter.test.sh` checks them instead.
+passes. `tests/frontmatter.test.sh` checks them instead, along with each skill's tier and
+the unquoted-": " YAML trap.
+
+**Verified (2026-10-12):** Proof's PreToolUse guards fire inside a subagent. A builder-like
+subagent's `git push --dry-run origin main` was refused by the bash guard, and its Write to
+`yarn.lock` by the write guard. The Stop hook does not fire when a subagent finishes —
+which is why the main session, not the builder, runs `verify.steps`.
+
+**Gotcha:** A pause that used to accept any reply must keep accepting it. Approval is read
+by intent ("yes", "looks good"), with `approve, <model>` and `approve, here` as extras —
+a fixed vocabulary turned the commonest replies into plan revisions.
 
 ## 2026-10-06 — Protect the default branch for one person, from real check names
 

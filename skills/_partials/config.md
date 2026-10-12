@@ -25,8 +25,8 @@ Read the file and keep these in mind for the rest of the run:
 | `labels.*` | Label names for ready / in-progress / discovered / blocked, the priority labels p1 / p2 / p3 / investigate, and needs_design (a design is awaited; `needs-design` if unset) |
 | `voice.audience` | Who reads the output. Unset = the default product-manager reader in `_partials/voice.md` |
 | `review.lenses` | Which reviewers run |
-| `models.builder_min` | The lowest model `/proof-work` and `/proof-fix` may recommend for the build (`haiku` / `sonnet` / `opus`). `null` = no floor. See `_partials/builder.md` |
 | `review.risk_focus` | The project's actual risk areas — the risk reviewer's brief |
+| `models.builder_min` | The lowest model `/proof-work` and `/proof-fix` recommend for the build: `haiku`, `sonnet` or `opus`. Missing or `null` = no floor; any other value is ignored with a warning. A floor on the recommendation, not a lock — the developer can still pick lower at approval. See `_partials/builder.md` |
 | `goals` | What the project is trying to achieve now. Value ratings name the goal they serve. Empty = rate on merits, never invent goals |
 | `ship.changelog` / `ship.store_notes` | The changelog file, and whether to draft app-store release notes. See `_partials/changelog.md` |
 | `design.*` | Token module, reference URL (a Claude Design System link enables designing on a canvas in `/proof-spec`), platform and house rules. Unset = no design system; say so rather than inventing one |

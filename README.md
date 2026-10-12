@@ -204,7 +204,8 @@ uses it. If your session is on Opus, nothing goes wrong; the later replies cost 
 they cost today.
 
 **The build is where most of the cost is**, so `/proof-work` and `/proof-fix` let you
-choose. The plan (or proposed fix) is made on Opus and ends with a line like:
+choose. The plan (or proposed fix) is made on Opus — its first reply; revisions, and
+everything after you approve, run on your session's model — and ends with a line like:
 
 > **Recommended builder: Sonnet** — 3 files, no declared risk areas, lint and build will
 > catch slips. Reply `approve` to use it, `approve, opus` (or `haiku`) to pick another,
@@ -220,9 +221,16 @@ choose. The plan (or proposed fix) is made on Opus and ends with a line like:
 - The main session runs `verify.steps` itself, so you see the real output. If a builder
   that is not Opus still fails after two fix attempts, an Opus builder takes over without
   stopping, and the PR says so
-- `approve, here` builds in the main session on the session's model, as before
-- `models.builder_min` in the config sets a floor — a project with payments might never
-  want Haiku writing its code
+- Approve however you like — "yes", "looks good" and `approve` all take the
+  recommendation; name a model to pick another. `approve, here` builds in the main
+  session on the session's model, as before. Under `--guided`, the build always runs
+  here
+- `models.builder_min` in the config sets a floor on the **recommendation**: a project
+  with payments can make sure Haiku is never suggested for its code. It is not a lock —
+  you can still name a lower model when you approve, and you'll be told it is below the
+  minimum
+- Proof's guards apply inside the builder too: it cannot push to `main` or edit
+  protected files any more than the main session can
 
 ## Designs that get built as drawn
 
