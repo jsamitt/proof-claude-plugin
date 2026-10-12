@@ -18,7 +18,8 @@ rule above all others:
 /proof-fix 31            # a bug that already has an issue
 ```
 
-Read `_partials/config.md`, `_partials/voice.md` and `_partials/priority.md` first.
+Read `_partials/config.md`, `_partials/voice.md`, `_partials/priority.md` and
+`_partials/builder.md` first.
 Then `project.docs`, and any `learnings.file` entries touching the area — say which you
 are applying.
 
@@ -27,8 +28,8 @@ are applying.
 1. Pin down the symptom; file or claim the issue
 2. Reproduce it
 3. Find the root cause — and prove it
-4. Propose the fix — **pause for approval**
-5. Fix it, with a test that fails before and passes after
+4. Propose the fix, with a recommended builder — **pause for approval**
+5. Fix it — in the builder you chose, or here — with a test that fails before and passes after
 6. Verify, keep the docs true, add the changelog line
 7. Learnings, PR, discovered work
 
@@ -101,10 +102,16 @@ Present, per `_partials/voice.md`:
   than five files**, say so plainly and offer to split it or look for a narrower fix: a
   bug fix that sprawls is usually treating several things at once
 - **How it will be proven** — the test, or the exact repro steps
+- **Recommended builder** — last, as one line, per `_partials/builder.md`. The root cause
+  is proven by now, so the rating rests on the actual fix, not a guess about it
 
 Then wait for approval. After that, run to a PR without stopping, as `/proof-work` does.
 
 ## 5. Fix it
+
+**Who fixes** follows the approval, per `_partials/builder.md`: the `proof-builder` agent
+on the chosen model, given the root cause and the reproduction, or this session for
+`approve, here`. The rules below hold either way.
 
 The smallest change that removes the cause. **Not** the symptom: no special-casing the
 one input that failed, no retry around something that should not fail, no "for now".
@@ -118,7 +125,9 @@ Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`.
 
 ## 6. Verify, keep the docs true, add the changelog line
 
-- Run `verify.steps`; re-run the original reproduction and confirm it is gone. Surface
+- Run `verify.steps` yourself, in this session — with a builder, after it reports done;
+  failures go back to it, and two failed fix attempts escalate to Opus, per
+  `_partials/builder.md`. Re-run the original reproduction and confirm it is gone. Surface
   `verify.manual` for the user — never claim a manual check.
 - **Docs:** if the bug came from a doc being wrong, or the fix changes documented
   behaviour, fix the doc in the same change. Per the docs step in `/proof-work`.
