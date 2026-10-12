@@ -1,6 +1,7 @@
 ---
 name: proof-design
 description: Use when setting up or checking a project's design system — not part of every issue. Establishes a design system where a project has none, wire an existing one into the harness so the other skills obey it, or report drift between the tokens and the code — detects which of the three applies rather than being told
+model: sonnet
 ---
 
 # Design

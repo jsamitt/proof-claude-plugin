@@ -106,8 +106,8 @@ designed in another tool.
 |---|---|
 | `/proof-spec "<idea>"` | Checks what it overlaps, supersedes or contradicts, and settles each → user stories, acceptance criteria and a priority rating; for visual changes, how it gets designed. Then asks: a board-tracked **issue**, or a parked **Discussion**? An issue waits at Spec Draft until you approve the spec; `/proof-spec <n>` on an existing issue skips the question |
 | `/proof-handoff <issue> <link>` | For a design made in another tool: sorts every element into exists / new / not buildable as drawn, checks every state has a frame, and writes the revisions for the design tool. Repeat until nothing blocks; then it records the design and the issue is ready to build |
-| `/proof-work <issue>` | Plan → *you approve* → build, verify, keep docs true, PR. Pauses again only for a decision the plan did not anticipate. Resumes from its checkpoint if interrupted |
-| `/proof-fix "<symptom>"` | For bugs: reproduce → root cause, proven → *you approve* the fix → fix with a test that fails before and passes after → PR |
+| `/proof-work <issue>` | Plan, with a recommended builder model → *you approve* (and pick the model) → build, verify, keep docs true, PR. Pauses again only for a decision the plan did not anticipate. Resumes from its checkpoint if interrupted |
+| `/proof-fix "<symptom>"` | For bugs: reproduce → root cause, proven → *you approve* the fix and its builder model → fix with a test that fails before and passes after → PR |
 | `/proof-review [pr]` | Reviewers on the diff: correctness, breaker, project risk, and design where there is UI |
 | `/proof-ship` | Prepare the release (version, changelog, app-store notes) as a PR; once merged, run the preflight and deploy steps in order, halting on failure |
 | `/proof-learn` | **What the project knows.** Sweep the session for lessons about the product and code; search, promote and prune the decisions file. The last step of every issue, and offered whenever you pause, since only the session that had the conversation can sweep it |
@@ -181,8 +181,57 @@ so out loud. Proof never guesses a command from the file tree.
   text for the people who use the app
 - **Docs stay true.** Before each PR, `/proof-work` checks whether the change made the
   project's docs wrong, and fixes the facts in the same PR
+- **Each command runs on a model suited to it**, and the build runs on one you choose.
+  See *Models* below
 - **Plain language by default.** Everything you read leads with what changes for users,
   then cost, then risk, then technical detail — plain on top, exact underneath
+
+## Models
+
+Each command names a model in its frontmatter, so running it switches to that model:
+
+| Model | Commands | Why |
+|---|---|---|
+| **Opus** | `/proof-spec`, `/proof-plan`, `/proof-work`, `/proof-fix` | Judgment: what to build, in what order, and how. Planning and root causes |
+| **Sonnet** | `/proof-review`, `/proof-design`, `/proof-retro`, `/proof-handoff`, `/proof-learn`, `/proof-init` | Careful reading and writing against rules the project already set |
+| **Haiku** | `/proof-ship` | Running the project's own release steps in order |
+
+**A command's model covers its first reply only.** Claude Code applies a skill's model
+for the rest of the turn; once you send your next message, the session's own model takes
+over. Commands that run start to finish — `/proof-ship`, most of `/proof-learn` — stay on
+their model throughout. In a conversation such as `/proof-spec`, only the first reply
+uses it. If your session is on Opus, nothing goes wrong; the later replies cost what
+they cost today.
+
+**The build is where most of the cost is**, so `/proof-work` and `/proof-fix` let you
+choose. The plan (or proposed fix) is made on Opus — its first reply; revisions, and
+everything after you approve, run on your session's model — and ends with a line like:
+
+> **Recommended builder: Sonnet** — 3 files, no declared risk areas, lint and build will
+> catch slips. Reply `approve` to use it, `approve, opus` (or `haiku`) to pick another,
+> or `approve, here` to build in this session.
+
+- **Opus** is recommended when the plan touches a declared risk area, is labelled for
+  investigation, spans more than five files, or carries an unsure item that is hard to
+  undo. **Haiku** only for small copy or config changes with verification to catch
+  slips. **Sonnet** otherwise. A P1, or a design with three or more states, raises the
+  pick a tier
+- The build runs in the `proof-builder` agent on that model. Its step-by-step work is in
+  its own transcript; the main session reports when it is done or needs you, and passes
+  its questions to you
+- The main session runs `verify.steps` itself, so you see the real output. If a builder
+  that is not Opus still fails after two fix attempts, an Opus builder takes over without
+  stopping, and the PR says so
+- Approve however you like — "yes", "looks good" and `approve` all take the
+  recommendation; name a model to pick another. `approve, here` builds in the main
+  session on the session's model, as before. Under `--guided`, the build always runs
+  here
+- `models.builder_min` in the config sets a floor on the **recommendation**: a project
+  with payments can make sure Haiku is never suggested for its code. It is not a lock —
+  you can still name a lower model when you approve, and you'll be told it is below the
+  minimum
+- Proof's guards apply inside the builder too: it cannot push to `main` or edit
+  protected files any more than the main session can
 
 ## Designs that get built as drawn
 
@@ -287,11 +336,11 @@ then it guards nothing.
 ```
 .claude-plugin/    plugin.json, marketplace.json
 skills/            the eleven commands, plus _partials/ shared by them
-agents/            the four reviewers
+agents/            the four reviewers, and the builder
 hooks/             hooks.json
 scripts/           board.sh, setup-board.sh, hooks/
 templates/         harness.json (per-project config), nightly-prompt.md (routine prompt)
-tests/             regression cases for the guards
+tests/             regression cases for the guards, and a check on skill models
 DECISIONS.md       why Proof is built the way it is, and the traps found along the way
 ```
 
@@ -305,8 +354,8 @@ Before merging, install the branch and check that everything loads:
 ```bash
 claude plugin validate .claude-plugin/plugin.json
 claude plugin marketplace add /path/to/your/checkout && claude plugin install proof@proof
-claude plugin details proof     # expect 11 skills, 4 agents, 3 hook events
-bash tests/pre-bash-guard.test.sh   # expect 0 failed
+claude plugin details proof     # expect 11 skills, 5 agents, 3 hook events
+for t in tests/*.test.sh; do bash "$t"; done   # expect 0 failed in each
 claude plugin list              # expect "Status: enabled" for proof
 ```
 

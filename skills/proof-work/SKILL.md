@@ -1,6 +1,7 @@
 ---
 name: proof-work
 description: Use when building a specced GitHub issue end to end — plans, pauses once for approval, then implements, verifies, records learnings, opens a PR and updates the board without further interruption. Part of every issue
+model: opus
 ---
 
 # Work
@@ -9,20 +10,24 @@ Takes a ready issue to an open PR. **One pause: the plan.** After you approve it
 runs to a PR without stopping to ask — that is the deal, and it is what makes the
 harness usable rather than a checklist you abandon.
 
+The plan is made on Opus. The build runs on the model you pick when you approve —
+recommended in the plan — or in this session if you say so. See `_partials/builder.md`.
+
 ```
 /proof-work 14
 /proof-work 14 --guided     # pause at each acceptance criterion instead
 ```
 
-Read `_partials/config.md`, `_partials/voice.md` and `_partials/changelog.md` first.
+Read `_partials/config.md`, `_partials/voice.md`, `_partials/changelog.md` and
+`_partials/builder.md` first.
 
 ## Checklist
 
 1. Fetch the issue and check it is ready
 2. Claim it; board → `in_dev`
 3. Branch
-4. Plan — **pause for approval**
-5. Build
+4. Plan, with a recommended builder — **pause for approval**
+5. Build — in the builder you chose, or here
 6. Verify
 7. Keep the docs true; add the changelog line
 8. Learnings
@@ -50,8 +55,9 @@ the single most expensive failure mode here.
 **Already `in_progress`?** Look for a **Checkpoint** comment on the issue (see *Keep a
 checkpoint* below). If there is one, this is a **resume**: check out its branch, read what
 is done and what is next, confirm in one line that the approved plan still stands, and
-carry on from *Next* — skipping the claim and plan steps. If there is no checkpoint, the
-issue was claimed some other way: stop and ask rather than guessing.
+carry on from *Next* with the checkpoint's **Builder**, per `_partials/builder.md`
+section 5 — skipping the claim and plan steps. If there is no checkpoint, the issue was
+claimed some other way: stop and ask rather than guessing.
 
 ## 2. Claim
 
@@ -75,15 +81,24 @@ Present, briefly:
 - **With a design:** the components to reuse, change and create, as the record lists
   them, and anything on the canvas you cannot build as drawn, with what you would do
   instead. Raise it here, not mid-build
+- **Recommended builder** — last, as one line, per `_partials/builder.md`
 
 Write it per `_partials/voice.md`: what the user will notice first, then the mechanics.
 
-Then stop and wait. Under `--guided`, also pause after each acceptance criterion.
+Then stop and wait. Under `--guided`, also pause after each acceptance criterion; a
+guided build runs in this session, and the plan says so instead of recommending a
+builder (`_partials/builder.md` section 1).
 
 Keep it to what a person can read in a minute. A plan long enough to skim past is a
 plan that got approved without being read.
 
 ## 5. Build
+
+**Who builds** follows the approval, per `_partials/builder.md`: the `proof-builder`
+agent on the chosen model, or this session for `approve, here`. The rules below are the
+build's rules either way; `agents/proof-builder.md` carries each of them, the design rule
+included, and its brief carries what they need. With a builder, its questions come back
+to you to ask, and its reports update the checkpoint.
 
 Work criterion by criterion, in the plan's order. Commit at each meaningful step with
 `(refs #{n})` in the message.
@@ -116,12 +131,16 @@ comment each time — so anyone can pick up exactly where this left off:
 ### ⏸ Checkpoint — {date}
 
 **Branch:** `{branch}`
+**Builder:** {opus | sonnet | haiku | here} · fix attempts {n}/2 — per `_partials/builder.md`
+**Plan:** {link to the `### 📋 Approved plan` comment}
 **Done:** {criteria finished, one line each}
 **Next:** {the very next step, concrete enough to start on cold}
 **Open questions:** {anything waiting on the user, or "none"}
 ```
 
-Update it after each acceptance criterion, and whenever work stops for any reason. It
+Write it at approval, before anything is built. Update it after each acceptance
+criterion (with a builder, after each of its reports), and whenever work stops for any
+reason. It
 lives on GitHub rather than on one machine, so it follows the work wherever it resumes.
 When the PR opens, mark it **Complete**.
 
@@ -137,7 +156,9 @@ consent for the plan — not for decisions nobody has seen yet. So:
 
 ## 6. Verify
 
-Run every command in `verify.steps`. Report real output. Fix what fails and re-run.
+Run every command in `verify.steps` yourself, in this session — with a builder, after it
+reports done. Report real output. Fix what fails and re-run; with a builder, failures go
+back to it, and two failed fix attempts escalate to Opus, per `_partials/builder.md`.
 
 **With a design**, check each state in the record against what you built, and say how:
 if this session can run the UI (a dev server, a simulator tool), put each built state
@@ -171,7 +192,8 @@ if it earns one. Say in the PR which it was.
 ## 8. Learnings
 
 Per `_partials/learnings.md`, post the **Build** capture — the gotchas and corrections,
-the things that cost time. If nothing met the bar, say so and post nothing.
+the things that cost time, including any the builder reported in `learnings`. If nothing
+met the bar, say so and post nothing.
 
 ## 9. PR
 
@@ -199,7 +221,7 @@ Closes #{n}
 {docs updated, or "docs checked, nothing stale"} · {changelog line added, or "no user-facing change"}
 
 ## Notes
-{deviations from the plan, and why}
+{deviations from the plan, and why; which model built it, and any escalation}
 ```
 
 Board → `in_review`, remove `in_progress`, comment the PR link on the issue.

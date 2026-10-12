@@ -1,6 +1,7 @@
 ---
 name: proof-fix
 description: Use when something is broken — finds the root cause before changing anything, confirms it, fixes it with a test that proves it, and opens a PR. The path every bug takes, instead of spec and work. Part of every bug
+model: opus
 ---
 
 # Fix
@@ -17,7 +18,8 @@ rule above all others:
 /proof-fix 31            # a bug that already has an issue
 ```
 
-Read `_partials/config.md`, `_partials/voice.md` and `_partials/priority.md` first.
+Read `_partials/config.md`, `_partials/voice.md`, `_partials/priority.md` and
+`_partials/builder.md` first.
 Then `project.docs`, and any `learnings.file` entries touching the area — say which you
 are applying.
 
@@ -26,8 +28,8 @@ are applying.
 1. Pin down the symptom; file or claim the issue
 2. Reproduce it
 3. Find the root cause — and prove it
-4. Propose the fix — **pause for approval**
-5. Fix it, with a test that fails before and passes after
+4. Propose the fix, with a recommended builder — **pause for approval**
+5. Fix it — in the builder you chose, or here — with a test that fails before and passes after
 6. Verify, keep the docs true, add the changelog line
 7. Learnings, PR, discovered work
 
@@ -50,8 +52,10 @@ check in `_partials/overlap.md`. A match means working that issue instead, with 
 details added as a comment; a match that was closed as fixed may mean the bug came back,
 which is worth saying before you look for the cause. Only then create one: the symptom
 as the title, the details in the body, the `bug` label, and the P-label from the rating.
-**If there is one**, read it. Either way,
-claim it: `in_progress` on, board to `in_dev`, per `_partials/board.md`.
+**If there is one**, read it. Already `in_progress` with a checkpoint: this is a resume
+(see *Resuming* in step 5). Already `in_progress` with no checkpoint: it was claimed
+some other way, so stop and ask rather than guessing. Otherwise, claim it: `in_progress`
+on, board to `in_dev`, per `_partials/board.md`.
 
 ## 2. Reproduce it
 
@@ -100,10 +104,16 @@ Present, per `_partials/voice.md`:
   than five files**, say so plainly and offer to split it or look for a narrower fix: a
   bug fix that sprawls is usually treating several things at once
 - **How it will be proven** — the test, or the exact repro steps
+- **Recommended builder** — last, as one line, per `_partials/builder.md`. The root cause
+  is proven by now, so the rating rests on the actual fix, not a guess about it
 
 Then wait for approval. After that, run to a PR without stopping, as `/proof-work` does.
 
 ## 5. Fix it
+
+**Who fixes** follows the approval, per `_partials/builder.md`: the `proof-builder` agent
+on the chosen model, given the root cause and the reproduction, or this session for
+`approve, here`. The rules below hold either way.
 
 The smallest change that removes the cause. **Not** the symptom: no special-casing the
 one input that failed, no retry around something that should not fail, no "for now".
@@ -113,11 +123,21 @@ ways and say so — a test that passes either way proves nothing. If `commands.t
 null there is nowhere to put one: describe the manual repro check instead, and add
 "no automated tests for this area" to discovered work.
 
-Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`.
+Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`,
+including its **Builder** and **Plan** lines; the plan comment for a fix also holds the
+root cause and the reproduction.
+
+**Resuming.** A bug issue that is already `in_progress` with a checkpoint resumes as
+`/proof-work` does (its section 1, and `_partials/builder.md` section 5): reconcile with
+the branch's commits, then carry on from *Next* on the checkpoint's builder. The root
+cause is already proven; do not re-investigate it unless the reproduction no longer
+fails the way the plan comment says.
 
 ## 6. Verify, keep the docs true, add the changelog line
 
-- Run `verify.steps`; re-run the original reproduction and confirm it is gone. Surface
+- Run `verify.steps` yourself, in this session — with a builder, after it reports done;
+  failures go back to it, and two failed fix attempts escalate to Opus, per
+  `_partials/builder.md`. Re-run the original reproduction and confirm it is gone. Surface
   `verify.manual` for the user — never claim a manual check.
 - **Docs:** if the bug came from a doc being wrong, or the fix changes documented
   behaviour, fix the doc in the same change. Per the docs step in `/proof-work`.
@@ -126,8 +146,8 @@ Commit with `(refs #{n})`. Keep the checkpoint note current, per `/proof-work`.
 
 ## 7. Learnings, PR, discovered work
 
-- **Learnings:** the root cause is almost always a learning — it was invisible, or it
-  would not have been a bug. Post a **Build** capture per `_partials/learnings.md`,
+- **Learnings:** include any the builder reported. The root cause is almost always a
+  learning — it was invisible, or it would not have been a bug. Post a **Build** capture per `_partials/learnings.md`,
   written as a gotcha: the condition and the consequence. If the area keeps breaking,
   say that too; it is the most useful thing the record can hold.
 - **PR:** as in `/proof-work`, with a **Root cause** section above the verification:

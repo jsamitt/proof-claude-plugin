@@ -1,6 +1,7 @@
 ---
 name: proof-ship
 description: Use when merged work needs to go out — prepares the release (version, changelog, app-store notes) as its own pull request, then runs the project's preflight and deploy steps in order, halting on the first failure, and closes out the board. Part of every release
+model: haiku
 ---
 
 # Ship

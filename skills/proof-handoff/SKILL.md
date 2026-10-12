@@ -1,6 +1,7 @@
 ---
 name: proof-handoff
 description: Use when a design made in a design tool is ready to be built — checks it against the codebase before anything is built (what exists, what is new, what cannot be built as drawn, which states are missing), writes the revisions for the design tool, repeats until it is clean, then records the approved design in the issue and marks it ready. Between spec and work, for designs made elsewhere
+model: sonnet
 ---
 
 # Handoff
