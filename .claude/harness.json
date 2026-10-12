@@ -1,0 +1,115 @@
+{
+  "$schema": "proof/harness-config@1",
+  "project": {
+    "name": "Proof",
+    "summary": "A Claude Code plugin harness for solo builders — spec → build → review → ship skills, review agents and safety hooks, installed from the jsamitt/proof-claude-plugin marketplace.",
+    "docs": [
+      "README.md",
+      "DECISIONS.md"
+    ]
+  },
+  "goals": [
+    "Cheaper to run per issue — lower model and token cost of taking an issue from spec to ship",
+    "Reliable on real projects — skills and hooks work first time on projects like Samitt.com, with no setup traps"
+  ],
+  "commands": {
+    "test": "bash tests/pre-bash-guard.test.sh",
+    "typecheck": null,
+    "lint": "claude plugin validate .",
+    "build": null,
+    "run": null
+  },
+  "verify": {
+    "on_stop": false,
+    "steps": [
+      "test",
+      "lint"
+    ],
+    "manual": [
+      "Install the branch locally and run the changed skill end to end in a real project (e.g. Samitt.com)",
+      "If a hook or setup script changed: run it once against a real repo and check its output"
+    ]
+  },
+  "board": {
+    "enabled": true,
+    "name": "Proof",
+    "field": "Status",
+    "stages": {
+      "backlog": "Backlog",
+      "spec_draft": "Spec Draft",
+      "ready": "Ready to Dev",
+      "in_dev": "In Dev",
+      "in_review": "In Review",
+      "shipped": "Shipped"
+    }
+  },
+  "labels": {
+    "ready": "ready-to-dev",
+    "in_progress": "in-progress",
+    "discovered": "discovered",
+    "blocked": "blocked",
+    "p1": "P1",
+    "p2": "P2",
+    "p3": "P3",
+    "investigate": "needs-investigation",
+    "needs_design": "needs-design"
+  },
+  "voice": {
+    "audience": null
+  },
+  "review": {
+    "lenses": [
+      "correctness",
+      "breaker",
+      "risk"
+    ],
+    "risk_focus": [
+      "Board stage options must only ever be set with their existing option IDs; sending options without IDs wipes every card's status on users' boards.",
+      "The safety hooks (pre-bash-guard, pre-write-guard) must never let destructive commands through, and must not block safe everyday commands — a false negative loses user work, a false positive makes people switch Proof off.",
+      "Skill and agent frontmatter must parse as YAML (quote any description containing \": \"); a parse error loads the skill with empty frontmatter and it silently stops being offered.",
+      "Manifest changes (plugin.json, marketplace.json, hooks.json) can stop the plugin loading for every user on update; the version in plugin.json and marketplace.json must match.",
+      "Proof carries no project facts: skills must never hardcode one project's commands, names or URLs — those belong in harness.json.",
+      "Scripts must run on macOS's bash 3.2."
+    ]
+  },
+  "design": {
+    "tokens": null,
+    "reference": null,
+    "platform": null,
+    "rules": []
+  },
+  "ship": {
+    "preflight": [
+      "test",
+      "lint"
+    ],
+    "steps": [
+      {
+        "name": "Merge the PR to main",
+        "run": null
+      },
+      {
+        "name": "Users pick it up with `claude plugin update proof@proof` (cloud sessions and the digest fetch it fresh) — no deploy",
+        "run": null
+      }
+    ],
+    "version_files": [
+      ".claude-plugin/plugin.json",
+      ".claude-plugin/marketplace.json"
+    ],
+    "changelog": null,
+    "store_notes": false
+  },
+  "learnings": {
+    "file": "DECISIONS.md"
+  },
+  "protected_paths": [
+    "**/.env*",
+    "**/*.pem",
+    "**/*.key"
+  ],
+  "branch": {
+    "base": "main",
+    "prefix": "feat/"
+  }
+}
