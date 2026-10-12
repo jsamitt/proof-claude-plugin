@@ -1,6 +1,6 @@
 ---
 name: proof-spec
-description: Use when turning an idea into something buildable — first checks it against the board for anything it overlaps, supersedes or contradicts and settles each, then explores the problem, proposes approaches, writes user stories and acceptance criteria, rates priority, and asks whether it lands as a board-tracked issue or a parked GitHub Discussion; splits oversized work into a parent with sub-issues. Part of every issue
+description: Use when turning an idea into something buildable — first checks it against the board for anything it overlaps, supersedes or contradicts and settles each, then explores the problem, proposes approaches, writes user stories and acceptance criteria, rates priority, asks whether a new idea lands as a board-tracked issue or a parked GitHub Discussion, and holds an issue at Spec Draft until the user approves the spec; splits oversized work into a parent with sub-issues. Part of every issue
 ---
 
 # Spec
@@ -8,11 +8,15 @@ description: Use when turning an idea into something buildable — first checks 
 Turns a thought into something you can build from without asking follow-up questions.
 This is the only planning stage — no separate idea tier, no separate technical spec.
 
-The same conversation ends in one of two places, and **the skill always asks which**:
+A new idea ends in one of two places, and **the skill always asks which**:
 a GitHub **issue** (committed work, goes on the board) or a GitHub **Discussion**
 (a worked-out concept, deliberately *not* on the board). There is no mode to remember
 and no flag to pass — you are asked at the end, once the draft exists and the choice
-is an informed one.
+is an informed one. Speccing an issue that already exists skips that question: it is
+already an issue.
+
+An issue waits at **Spec Draft** until the user approves the spec. Only an explicit
+approval moves it to Ready to Dev — choosing where it lands is not approval.
 
 ```
 /proof-spec "unused streak freezes should carry over to next week"
@@ -34,8 +38,8 @@ touching this area — say which past decisions you are applying.
 6. Cut the scope
 7. Rate priority — propose, then adjust
 8. Design it, if it is visual — here, elsewhere, or not at all
-9. Present the draft, then **ask where it lands** — issue or Discussion
-10. Create it and apply what step 1 settled; an issue goes on the board `spec_draft` → `ready`, a Discussion does not
+9. Present the draft, then **ask where it lands** — issue or Discussion. Skipped for an existing issue
+10. An issue: put the draft on it at `spec_draft`, **ask for approval**, and only then move it to `ready` and apply what step 1 settled. A Discussion: write it, off the board
 11. Capture the spec learnings
 12. Present discovered work
 
@@ -44,6 +48,10 @@ touching this area — say which past decisions you are applying.
 Before anything else, run the **full** overlap check in `_partials/overlap.md`: open
 issues, open Discussions, recently closed issues and the decisions file, against the idea
 as stated. For `/proof-spec <n>`, check the issue against everything except itself.
+
+For `/proof-spec <n>`, also move the issue to `spec_draft` now, per `_partials/board.md`,
+and remove the `ready` label if it has one — it is being specced, and the board should
+say so. The same applies when *Spec the existing issue instead* switches to one.
 
 If nothing overlaps, say so in one line and carry on. If something does, present the
 matches and settle each one with the user **now**, in this session — the answer often
@@ -258,18 +266,22 @@ The states list is what `/proof-handoff` checks the design against, so make it c
 
 ## 9. Present, then ask where it lands
 
-Show the full draft. Revise and re-present until it is right. **Create nothing without
-an explicit go-ahead.**
+Show the full draft. Revise and re-present as the user asks. **Create nothing until the
+user has seen the draft and, for a new idea, chosen where it lands. Nothing reaches
+Ready until they approve it in step 10a.**
+
+**Speccing an existing issue (`/proof-spec <n>`)?** Do not ask where it lands. It is
+already an issue, so go straight to step 10a.
 
 Include what step 1 settled and what it will do to other issues ("closes #12 as a
-duplicate; updates #19's criteria"), so the go-ahead covers those too. If the scope moved
+duplicate; updates #19's criteria"), so the approval covers those too. If the scope moved
 a long way during the conversation, re-run the overlap check on what is new before
 presenting — the idea that was checked may not be the idea being approved.
 
-Then ask — always, every run, even when the answer seems obvious:
+For a new idea or a Discussion being picked up, ask — always, even when the answer seems obvious:
 
 > Where should this land?
-> **1. Issue** — committed work. Goes on the board at Ready to Dev, buildable now.
+> **1. Issue** — committed work. Goes on the board at Spec Draft for your approval, then Ready to Dev.
 > **2. Discussion** — a worked-out concept, parked. Not on the board, nothing owed.
 
 Before asking, check that the repository can take a Discussion:
@@ -288,7 +300,7 @@ Low-confidence rating is also a strong signal toward a Discussion.
 Asking costs one keystroke. Guessing wrong puts a maybe on the board, and a board full
 of maybes is one nobody looks at.
 
-## 10a. Create the issue (if that is the answer)
+## 10a. The issue: Spec Draft, approval, then Ready
 
 Title as a capability, not a task ("Unused freezes carry over to next week", not "Add
 freeze carry-over"). Body:
@@ -324,14 +336,33 @@ freeze carry-over"). Body:
 | Confidence | ... | ... |
 ```
 
-Then, per `_partials/board.md`: add to the board, set `spec_draft`, and immediately
-move to `ready` with the `ready` label — the spec was approved in step 9, so the issue
-is ready the moment it exists. **Except when it is to be designed elsewhere:** it stays at
-`spec_draft` with the `needs_design` label until `/proof-handoff` records the design. Apply the P-label, and `investigate` if confidence is Low. Speccing an existing issue updates it in place.
+**Put the draft on the issue at `spec_draft`.** A new idea: create the issue with this
+body, and per `_partials/board.md` add it to the board at `spec_draft`. An existing
+issue: replace its body with this one in place (it moved to `spec_draft` in step 1; its
+original text stays in GitHub's edit history). No `ready` label and no P-label yet.
 
-Then apply what step 1 settled, per `_partials/overlap.md`: comment on and update, close,
-or attach as a sub-issue, and record the links in the new issue's Notes. Report each
-change with a link.
+**Then ask for approval** — a separate question, every time, even right after the user
+chose *Issue*:
+
+> #{n} is at Spec Draft: {link}
+> Approve the spec, or tell me what to change.
+
+- **Changes:** revise the draft, update the issue body, show what changed, and ask again.
+  The issue stays at `spec_draft`.
+- **Approved:** only now, per `_partials/board.md`, move it to `ready` with the `ready`
+  label, the P-label, and `investigate` if confidence is Low. **Except when it is to be
+  designed elsewhere:** it stays at `spec_draft` with the `needs_design` label until
+  `/proof-handoff` records the design; it still gets its P-label.
+- **Not now:** leave it at `spec_draft` and say so. Do not move it to `ready`, and do
+  not apply what step 1 settled.
+
+Read approval by intent: a clear yes with no changes ("approve", "looks good", "yes")
+approves; anything that asks for a change is a change, even if it starts with "yes".
+Choosing *Issue* in step 9, or a reply to some other question, is never approval.
+
+After approval, apply what step 1 settled, per `_partials/overlap.md`: comment on and
+update, close, or attach as a sub-issue, and record the links in the issue's Notes.
+Report each change with a link.
 
 ## 10b. Write the Discussion (if that is the answer)
 
@@ -376,6 +407,7 @@ File only what is approved.
 
 ## Hand back
 
-The issue (or Discussion) URL and its stage.
+The issue (or Discussion) URL and its stage — for an issue, the stage confirmed from
+the board after approval, never assumed.
 
 Then **ask what to do next**, per `_partials/chain.md` — never start the next step unasked.
