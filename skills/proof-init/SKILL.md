@@ -1,6 +1,7 @@
 ---
 name: proof-init
 description: Use once per project — not part of every issue — when setting up the Proof harness for the first time, or when its configuration is out of date — inspects the repo, asks what it cannot infer, and writes .claude/harness.json plus the GitHub board and labels
+model: sonnet
 ---
 
 # Initialise Proof on a project

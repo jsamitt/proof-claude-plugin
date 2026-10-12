@@ -1,6 +1,7 @@
 ---
 name: proof-work
 description: Use when building a specced GitHub issue end to end — plans, pauses once for approval, then implements, verifies, records learnings, opens a PR and updates the board without further interruption. Part of every issue
+model: opus
 ---
 
 # Work

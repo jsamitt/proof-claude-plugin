@@ -1,6 +1,7 @@
 ---
 name: proof-review
 description: Use when a pull request or working diff needs review — runs three independent reviewers (correctness, adversarial breaker, project risk) in parallel and posts consolidated findings. Part of every issue
+model: sonnet
 ---
 
 # Review

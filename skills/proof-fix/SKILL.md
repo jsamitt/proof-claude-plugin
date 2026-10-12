@@ -1,6 +1,7 @@
 ---
 name: proof-fix
 description: Use when something is broken — finds the root cause before changing anything, confirms it, fixes it with a test that proves it, and opens a PR. The path every bug takes, instead of spec and work. Part of every bug
+model: opus
 ---
 
 # Fix
