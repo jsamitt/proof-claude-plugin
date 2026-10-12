@@ -52,9 +52,10 @@ check in `_partials/overlap.md`. A match means working that issue instead, with 
 details added as a comment; a match that was closed as fixed may mean the bug came back,
 which is worth saying before you look for the cause. Only then create one: the symptom
 as the title, the details in the body, the `bug` label, and the P-label from the rating.
-**If there is one**, read it; if it is already `in_progress` with a checkpoint, this is a
-resume (see *Resuming* in step 5). Otherwise, claim it: `in_progress` on, board to
-`in_dev`, per `_partials/board.md`.
+**If there is one**, read it. Already `in_progress` with a checkpoint: this is a resume
+(see *Resuming* in step 5). Already `in_progress` with no checkpoint: it was claimed
+some other way, so stop and ask rather than guessing. Otherwise, claim it: `in_progress`
+on, board to `in_dev`, per `_partials/board.md`.
 
 ## 2. Reproduce it
 
@@ -145,8 +146,8 @@ fails the way the plan comment says.
 
 ## 7. Learnings, PR, discovered work
 
-- **Learnings:** include any the builder reported. The root cause is almost always a learning — it was invisible, or it
-  would not have been a bug. Post a **Build** capture per `_partials/learnings.md`,
+- **Learnings:** include any the builder reported. The root cause is almost always a
+  learning — it was invisible, or it would not have been a bug. Post a **Build** capture per `_partials/learnings.md`,
   written as a gotcha: the condition and the consequence. If the area keeps breaking,
   say that too; it is the most useful thing the record can hold.
 - **PR:** as in `/proof-work`, with a **Root cause** section above the verification:

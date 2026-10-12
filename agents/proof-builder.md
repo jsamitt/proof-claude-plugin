@@ -24,7 +24,8 @@ You will be given:
 - `protected_paths`, verbatim
 - with a design: the issue's `## Design` section, the path to its frozen copy, and the
   project's `design` block (tokens, rules, platform)
-- for `/proof-fix`: the proven root cause and the reproduction
+- for `/proof-fix`: the proven root cause and the reproduction. Your `criteria` are *the
+  fix removes the cause* and *a regression test fails before the fix and passes after*
 - when resuming: the approved plan, what is already done, and what is next
 
 ## Rules

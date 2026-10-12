@@ -23,9 +23,10 @@ Pick from what you already know after planning:
 | **Haiku** | **All** of: two files or fewer; copy, content or config only, with no new logic; no risk area; no `## Design` section; `verify.steps` is not empty, so something will catch a slip |
 | **Sonnet** | Everything else |
 
-Two more signals lean the pick up a tier when the rules above are close: a **P1** (a
-mistake costs more) and a **design record with several states** (more to match). The
-reason names the signals that decided it.
+Two more signals each raise **Haiku to Sonnet**, and raise **Sonnet to Opus** when the
+plan also spans more than three files: a **P1** (a mistake costs more) and a **design
+record with three or more states** (more to match). The reason names the signals that
+decided it.
 
 Then apply the floor, `models.builder_min`. Missing or `null` means no floor. A value
 other than `haiku`, `sonnet` or `opus` is ignored: say once that it is not a model and
@@ -51,6 +52,14 @@ Read the reply **by intent**, not by exact words:
 | A clear yes saying to build here: `approve, here`, "build it here" | No builder. Build in this session on the session's model, exactly as the skill's build step describes |
 | A yes that names two models, negates one ("not opus"), or names something that is not haiku, sonnet or opus | Ask one short question to settle it; do not guess |
 | A request to change the plan, or a question about it | Revise or answer, then ask again |
+| No clear yes ("wait", "not yet", "let me think") | Nothing is built. Wait |
+
+**Under `--guided`**, every approval builds in this session: ignore a model name or
+"here" in the reply, say once that guided builds run here, and record the builder as
+`here`.
+
+**When `verify.steps` is empty** and the developer picks Haiku, say once that nothing
+will check a Haiku build here, and go on with their pick.
 
 A pick below `models.builder_min`, or `here` when the floor is above the session's model,
 is the developer's call. Say once that it is below the project's minimum, and go on.
@@ -77,7 +86,9 @@ Pass it the brief its definition lists:
 - `protected_paths`, verbatim
 - **with a design:** the issue's `## Design` section, the path to its frozen copy, and the
   `design` block from the config (tokens, rules, platform)
-- **for `/proof-fix`:** the proven root cause and the reproduction
+- **for `/proof-fix`:** the proven root cause and the reproduction, with the criteria to
+  report against: *the fix removes the cause* and *a regression test fails before the fix
+  and passes after*
 - **when resuming:** what is done (reconciled with `git log`, section 5) and what is next
 
 Tell the developer in one line what is happening: *"Building on Sonnet. Its step-by-step
@@ -150,8 +161,11 @@ On a resume:
   reconciled *Done* and *Next*. Keep the attempt count from the checkpoint. After an
   escalation, resume on Opus.
 - **Builder is `here`** → build in this session. Nothing is spawned.
-- **No Builder line** (a checkpoint from before this existed) → ask once which builder
-  to use, with a recommendation per section 1, then write the line.
+- **No Builder line** (a checkpoint from before this existed) → it has no plan comment
+  either. Rebuild the plan from the issue's criteria and the branch's commits, show it in
+  a few lines, and ask once which builder to use, with a recommendation per section 1.
+  Post the rebuilt plan as the `### 📋 Approved plan` comment and write the Builder and
+  Plan lines before building.
 
 ## 6. In the PR
 

@@ -214,7 +214,8 @@ everything after you approve, run on your session's model — and ends with a li
 - **Opus** is recommended when the plan touches a declared risk area, is labelled for
   investigation, spans more than five files, or carries an unsure item that is hard to
   undo. **Haiku** only for small copy or config changes with verification to catch
-  slips. **Sonnet** otherwise
+  slips. **Sonnet** otherwise. A P1, or a design with three or more states, raises the
+  pick a tier
 - The build runs in the `proof-builder` agent on that model. Its step-by-step work is in
   its own transcript; the main session reports when it is done or needs you, and passes
   its questions to you

@@ -69,9 +69,11 @@ check_file() {
   [ -n "$(fm_value "$fm" name)" ] || { echo "no name"; return; }
   desc="$(fm_raw "$fm" description)"
   [ -n "$desc" ] || { echo "no description"; return; }
+  tab="$(printf '\t')"
   case "$desc" in
     \"*|\'*|'|'*|'>'*) ;;
-    *': '*) echo "unquoted description contains ': ' (YAML error)"; return ;;
+    *': '*|*":$tab"*|*:) echo "unquoted description contains ':' before a space or at the end (YAML error)"; return ;;
+    '*'*|'&'*|'!'*|'['*|'{'*|'@'*|'`'*|'%'*) echo "unquoted description starts with a YAML indicator (YAML error)"; return ;;
   esac
 
   model="$(fm_value "$fm" model)"
@@ -98,12 +100,18 @@ check_file() {
   echo OK
 }
 
-expect() {  # expect WANT FILE KIND NAME LABEL — WANT is OK or a substring of the reason
+expect() {  # expect WANT FILE KIND NAME LABEL — WANT is exactly OK, or a substring of the reason
   got="$(check_file "$2" "$3" "$4")"
-  case "$got" in
-    *"$1"*) pass=$((pass+1)) ;;
-    *) fail=$((fail+1)); printf 'FAIL  %s: want "%s", got "%s"\n' "$5" "$1" "$got" ;;
-  esac
+  if [ "$1" = OK ]; then
+    [ "$got" = OK ] && ok=1 || ok=0
+  else
+    case "$got" in OK) ok=0 ;; *"$1"*) ok=1 ;; *) ok=0 ;; esac
+  fi
+  if [ $ok -eq 1 ]; then
+    pass=$((pass+1))
+  else
+    fail=$((fail+1)); printf 'FAIL  %s: want "%s", got "%s"\n' "$5" "$1" "$got"
+  fi
 }
 
 # --- the real files
@@ -116,6 +124,9 @@ for f in "$ROOT"/agents/*.md; do
   expect OK "$f" agent "$n" "${f#$ROOT/}"
 done
 [ -f "$ROOT/agents/proof-builder.md" ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "FAIL  agents/proof-builder.md is missing"; }
+for n in proof-spec proof-plan proof-work proof-fix proof-review proof-design proof-retro proof-handoff proof-learn proof-init proof-ship; do
+  [ -f "$ROOT/skills/$n/SKILL.md" ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "FAIL  skills/$n/SKILL.md is missing (it has a tier in this test)"; }
+done
 
 # --- fixtures: the checker must catch these, and must not trip on these
 fx() {  # fx WANT KIND NAME LABEL — file body on stdin
@@ -191,6 +202,27 @@ fx "YAML error" skill proof-spec "unquoted ': ' in description" <<'X'
 ---
 name: proof-spec
 description: Owns what the project knows: records a lesson
+model: opus
+---
+X
+fx "is not opus" skill proof-spec "model: OK must not pass" <<'X'
+---
+name: proof-spec
+description: Builds things
+model: OK
+---
+X
+fx "YAML error" skill proof-spec "description ending in ':'" <<'X'
+---
+name: proof-spec
+description: Use when X:
+model: opus
+---
+X
+fx "YAML indicator" skill proof-spec "description starting with '*'" <<'X'
+---
+name: proof-spec
+description: *bad
 model: opus
 ---
 X
