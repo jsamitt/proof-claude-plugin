@@ -320,8 +320,14 @@ Optionally, a second routine runs `/proof-retro` for you. It checks once a week 
 a retro about once a month, as a new **Proof retro: {month}** issue on your board, with up
 to three suggested changes to tick. Each weekly check applies what you have ticked:
 config changes arrive as one pull request for you to merge, and habit changes are marked
-acknowledged. Months with nothing closed or merged post nothing. It is separate from the
-nightly digest and changes nothing about it.
+acknowledged. A change to what Proof runs or protects (commands, deploy steps,
+verification, protected paths) waits until you run `/proof-retro` yourself. Months with
+nothing closed or merged post nothing. It is separate from the nightly digest and
+changes nothing about it.
+
+It only acts on retro issues opened by someone with write access to the repository. On a
+public repository anyone can open an issue titled "Proof retro", and the routine runs
+as you, so it ignores those.
 
 `/proof-init` sets it up, and `/proof-retro` offers to when you run it yourself. The same
 two rules as the digest apply: create it on the Routines page with both repositories,
