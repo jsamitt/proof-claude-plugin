@@ -7,6 +7,40 @@ Read this before changing the plugin's manifest, hooks or setup.
 
 ---
 
+## 2026-10-13 — Unattended runs trust identities, not titles, and change only an allowlist
+
+**Decision:** The retro routine acts only on retro issues opened by the repository owner
+or by the login the run acts as, and a tick applies a config change by itself only for a
+short allowlist (add to `review.risk_focus`, `design.rules` or `goals`; set
+`voice.audience`; raise `models.builder_min`). Everything else waits for an interactive
+`/proof-retro` and an explicit yes. Any future routine follows the same two rules.
+**Why:** On a public repository anyone can open an issue, and as its author can edit and
+tick it. The first draft found its issue by title, so a stranger's "Proof retro" issue
+could make the routine open a pull request from the owner's account, including changes to
+`ship.steps`, which `/proof-ship` runs. Merging was the only gate.
+**Rejected:** A denylist of guard keys written as patterns (`ship.*`, `verify.*`). Setting
+the parent key (`ship`) replaces the whole block and matches no pattern, and the list
+missed keys that weaken protection without running anything (`review.lenses`,
+`project.docs`).
+
+**Gotcha:** GitHub's `author_association` of `MEMBER` or `COLLABORATOR` does not mean the
+author can write: an organisation member may only have read access. Check the author's
+login against a known identity instead.
+
+**Gotcha:** A routine acts as the owner, so its own issues, edits, commits and pull
+requests count as owner activity in every other check. The nightly digest's "activity in
+the last 24 hours" and the retro's "anything closed or merged" both had to leave the
+routine's own work out explicitly.
+
+## 2026-10-13 — A routine's output must land where the developer already looks
+
+**Gotcha:** A routine posts as the repository owner, and GitHub never notifies you about
+issues or comments from your own account. A green run that posts a comment on an old
+issue is, in practice, unread.
+**Decision:** The monthly retro is posted as a new issue that auto-add puts on the board,
+not as a comment on the digest issue. The board and the top of the issue list are where a
+solo developer already looks.
+
 ## 2026-10-12 — A spec waits at Spec Draft until it is explicitly approved
 
 **Decision:** `/proof-spec` puts an issue at Spec Draft and asks a separate question:
