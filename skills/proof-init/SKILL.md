@@ -183,7 +183,7 @@ confirmation.
    **Already protected** (the script says "left as is"): say so and move on. Never
    change protection someone already set up.
 
-If the user skips a step, note it as an open item in the hand-back (step 8).
+If the user skips a step, note it as an open item in the hand-back (step 9).
 
 ## 5. Load Proof for anyone who opens the project
 
@@ -254,7 +254,29 @@ If yes:
    crash. Check the digest issue for a new comment. If there is none, the run's transcript
    (open it from the routine's page) says why.
 
-## 8. Hand back
+## 8. Optional: the monthly retro
+
+Ask whether the user wants a retro to appear by itself about once a month (see
+`/proof-retro`). It is separate from the nightly digest and changes nothing about it. If
+not, skip this step.
+
+If yes:
+
+1. **The config must be on the default branch first**, as for the digest.
+2. **Fill in `templates/retro-prompt.md`** with the project repository, the owner's GitHub
+   login and their time zone. Show the finished prompt.
+3. **The user creates the routine on the Routines page, not you**, for the same reason as
+   the digest. Walk them through it the same way, with three differences:
+   - **Trigger:** Schedule → **Weekly**. If only Daily is offered, Daily works too: each
+     run checks whether a retro is due and stops if not, so the extra runs are short
+   - **Model:** Sonnet, if the page offers a choice — the retro's own tier
+   - Name it so it is clearly not the digest, e.g. *Proof retro — {repo}*
+4. **Confirm it worked by its output.** After **Run now**, either a **Proof retro:** issue
+   appears, or the run's transcript ends with one line saying why nothing was due. A
+   project with no closed issues or merged pull requests in the last 30 days has nothing
+   to look back on yet; that line is the correct result.
+
+## 9. Hand back
 
 Report: the config path, what you inferred vs. what the user told you, the board URL,
 and the one-line next step — `/proof-spec "<something you want to build>"`.
