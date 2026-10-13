@@ -1,5 +1,5 @@
 {
-  "description": "Proof harness — guardrails that cost nothing to run: destructive-command and protected-path denial, an opt-in verify-before-finishing gate, and transcript archiving before compaction.",
+  "description": "Proof harness — guardrails that cost nothing to run: destructive-command and protected-path denial, a stop on committing to a branch another session moved, an opt-in verify-before-finishing gate, and transcript archiving before compaction.",
   "hooks": {
     "PreToolUse": [
       {
@@ -9,6 +9,12 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/pre-write-guard.sh\"", "timeout": 10 }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/session-branch.sh\" record", "timeout": 10 }]
       }
     ],
     "Stop": [
