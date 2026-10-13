@@ -80,6 +80,9 @@ ok "a switch inside a message is not a switch" refused S1 "$R" 'git commit -m "t
 ok "switch -c then commit allowed"         allowed S1 "$R" 'git switch -c c && git commit -m "x"'
 ok "checkout -b then commit allowed"       allowed S1 "$R" 'git checkout -b d && git commit -m "x"'
 ok "checkout branch then push allowed"     allowed S1 "$R" "git checkout a && git push"
+ok "gh pr checkout then commit allowed"    allowed S1 "$R" 'gh pr checkout 12 && git commit -m "x"'
+ok "branch rename then push allowed"       allowed S1 "$R" "git branch -m renamed && git push"
+ok "plain git branch is not a switch"      refused S1 "$R" "git branch -a && git push"
 ok "commit before the switch still refused" refused S1 "$R" 'git commit -m x && git switch b'
 
 # --- other folders are not checked; the session's own folder still is
@@ -104,6 +107,11 @@ ok "a switch in another repo does not accept" [ "$(rec_of "$R" S1)" = main ]
 record S1 "$R" "git switch b"
 ok "git switch to the current branch accepts" [ "$(rec_of "$R" S1)" = b ]
 ok "commit after accepting goes through"   allowed S1 "$R" 'git commit -m "x"'
+g -C "$R" branch -m b b2
+record S1 "$R" "git branch -m b b2"
+ok "renaming the current branch records it" [ "$(rec_of "$R" S1)" = b2 ]
+g -C "$R" branch -m b2 b
+record S1 "$R" "git branch -m b2 b"
 g -C "$R" switch a
 record S1 "$R" "cd sub && git checkout a"
 ok "cd within the repo then checkout records" [ "$(rec_of "$R" S1)" = a ]

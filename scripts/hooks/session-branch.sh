@@ -9,7 +9,8 @@
 #                              reason on a mismatch, nothing otherwise
 #
 # The record follows the branch only when this session itself switches
-# (git switch, git checkout <branch>, -b ...) or has no record yet. Following
+# (git switch, git checkout <branch>, -b ..., gh pr checkout, git branch -m)
+# or has no record yet. Following
 # it on every command would let a routine `git status` after another session's
 # switch quietly accept the wrong branch.
 #
@@ -156,6 +157,9 @@ class Walker:
                 args = [w for w in words[1:] if not w.startswith("-") or w == "-"]
                 d = self.resolve(d, args[0]) if args else os.path.expanduser("~")
                 continue
+            if words[:3] == ["gh", "pr", "checkout"]:
+                yield d, "switch", []
+                continue
             if words[0] != "git":
                 continue
             target, i = d, 1
@@ -180,8 +184,10 @@ class Walker:
 
 
 def is_switch(sub, args, d):
-    if sub == "switch":
+    if sub == "switch":   # also `gh pr checkout`, mapped to this in git_parts
         return True
+    if sub == "branch":   # renaming the current branch changes its name too
+        return any(a in ("-m", "-M", "--move") for a in args)
     if sub != "checkout":
         return False
     if any(a in ("-b", "-B", "--orphan", "-t", "--track", "--detach") for a in args):
