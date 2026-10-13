@@ -36,7 +36,9 @@ This is what makes "apply now" work: tick boxes on your phone, open a session, r
 ## 1. Gather
 
 - Every open issue: title, labels, stage on the board, last activity, and its Priority
-  section if it has one
+  section if it has one. Leave out Proof's own reports, the **Proof digest** issue and
+  any retro issue (labelled `proof-retro`, or titled `Proof retro:`): they are logs, not
+  work, and are never rated or recommended
 - What is in flight: anything In Dev or In Review, and any open PRs
 - What shipped recently, and what learnings were recorded since the last plan — both are
   the usual reasons a rating has gone stale
