@@ -332,7 +332,9 @@ one still is. The cases live in `tests/pre-bash-guard.test.sh`.
 The branch check remembers each session's branch (in `.git/proof-sessions/`, never
 committed) on its first command, and after that only when it switches itself, so a
 routine `git status` after another session's switch never accepts it. Commands aimed at
-another folder, through `cd` or `git -C`, are not checked. The cases live in `tests/session-branch.test.sh`.
+another folder, through `cd` or `git -C`, are not checked. Git run from inside a script,
+alias or shell function isn't seen: a branch moved that way is refused once, and
+`git switch <branch>` accepts it. The cases live in `tests/session-branch.test.sh`.
 
 Guards are narrow on purpose. One that fires on ordinary work gets switched off, and
 then it guards nothing.
@@ -360,7 +362,7 @@ Before merging, install the branch and check that everything loads:
 ```bash
 claude plugin validate .claude-plugin/plugin.json
 claude plugin marketplace add /path/to/your/checkout && claude plugin install proof@proof
-claude plugin details proof     # expect 11 skills, 5 agents, 4 hook events
+claude plugin details proof     # expect 11 skills, 5 agents, 5 hook events
 for t in tests/*.test.sh; do bash "$t"; done   # expect 0 failed in each
 claude plugin list              # expect "Status: enabled" for proof
 ```

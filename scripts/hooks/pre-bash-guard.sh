@@ -50,8 +50,12 @@ print(json.dumps({"hookSpecificOutput":{"hookEventName":"PreToolUse",
 # Branch moved under this session (another session, or a manual switch)?
 # Checked on the raw command, before git commit parts are set aside below —
 # a commit is exactly what this protects. See session-branch.sh.
-moved="$(printf '%s' "$INPUT" | bash "$(dirname "$0")/session-branch.sh" check 2>/dev/null)"
-[ -n "$moved" ] && deny "$moved"
+case "$CMD" in
+  *git*)
+    moved="$(printf '%s' "$INPUT" | bash "$(dirname "$0")/session-branch.sh" check 2>/dev/null)"
+    [ -n "$moved" ] && deny "$moved"
+    ;;
+esac
 
 # Split on && || ; and newlines (not on |, so a pipe into a database tool stays
 # with what feeds it), drop the parts that only record text, rejoin the rest.

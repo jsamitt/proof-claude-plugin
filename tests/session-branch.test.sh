@@ -94,6 +94,43 @@ ok "cd into own folder still checked"      refused S1 "$R" "cd $R && git commit 
 ok "cd into own subfolder still checked"   refused S1 "$R" "cd sub && git commit -m x"
 ok "git -C own folder still checked"       refused S1 "$R" "git -C $R commit -m x"
 ok "unresolvable cd skipped"               allowed S1 "$R" 'cd "$WORK" && git commit -m x'
+ok "cd to the repo's top level still checked" refused S1 "$R" 'cd "$(git rev-parse --show-toplevel)" && git commit -m x'
+ok "cd - back home still checked"          refused S1 "$R" "cd $O && cd - && git commit -m x"
+ok "pushd/popd back home still checked"    refused S1 "$R" "pushd $O; popd; git commit -m x"
+ok "GIT_DIR elsewhere skipped"             allowed S1 "$R" "GIT_DIR=$O/.git git commit -m x"
+
+# --- heredocs and unreadable commands (review round 1)
+ok "heredoc body with an apostrophe: still refused" refused S1 "$R" "$(printf "git commit -F - <<'EOF'\nfix: don't crash\nEOF")"
+ok "tab heredoc with an apostrophe: still refused"  refused S1 "$R" "$(printf "git commit -F - <<-EOF\n\tit's\n\tEOF")"
+ok "commit after a heredoc: still refused" refused S1 "$R" "$(printf "cat > f <<'EOF'\ndon't\nEOF\ngit commit -am x")"
+ok "the usual commit-message form: refused" refused S1 "$R" "$(printf "git commit -m \"\$(cat <<'EOF'\nfix: don't crash\nEOF\n)\"")"
+ok "unbalanced quote falls back: refused"  refused S1 "$R" "git commit -m \"x\" --author=O'Brien"
+ok "unbalanced quote after cd elsewhere: skipped" allowed S1 "$R" "cd $O && git commit -m it's"
+
+# --- keywords, wrappers and nested shells (review round 1)
+ok "inside if/then: refused"               refused S1 "$R" "if true; then git commit -m x; fi"
+ok "inside braces: refused"                refused S1 "$R" "{ git commit -m x; }"
+ok "inside a for loop: refused"            refused S1 "$R" "for i in 1; do git push; done"
+ok "behind sudo: refused"                  refused S1 "$R" "sudo git commit -m x"
+ok "behind timeout: refused"               refused S1 "$R" "timeout 5 git push"
+ok "inside bash -c: refused"               refused S1 "$R" "bash -c 'git commit -m x'"
+ok "inside sh -c: refused"                 refused S1 "$R" 'sh -c "git push"'
+ok "inside eval: refused"                  refused S1 "$R" 'eval "git commit -m x"'
+ok "absolute path to git: refused"         refused S1 "$R" "/usr/bin/git commit -m x"
+ok "backslash-newline: refused"            refused S1 "$R" "$(printf 'git \\\ncommit -m x')"
+ok "switch then commit inside bash -c: allowed" allowed S1 "$R" "bash -c 'git switch -c c && git commit -m x'"
+
+# --- things that look like switches but are not (review round 1)
+ok "checkout <branch> <file> is not a switch" refused S1 "$R" "git checkout a README.md && git commit -m x"
+ok "checkout HEAD <file> is not a switch"  refused S1 "$R" "git checkout HEAD README.md && git commit -m x"
+ok "checkout of a typo is not a switch"    refused S1 "$R" "git checkout typo-branch && git commit -m x"
+ok "renaming another branch is not a switch" refused S1 "$R" "git branch -m a a2 && git commit -m x"
+ok "switch --help is not a switch"         refused S1 "$R" "git switch --help && git commit -m x"
+
+# --- other ways a session moves its own branch (review round 1)
+ok "gh pr merge --delete-branch then push: allowed" allowed S1 "$R" "gh pr merge 5 --delete-branch && git push"
+ok "gh issue develop --checkout then push: allowed" allowed S1 "$R" "gh issue develop 3 --checkout && git push"
+ok "rebase onto a branch then push: allowed" allowed S1 "$R" "git rebase main a && git push"
 
 # --- restoring a file is not a switch
 record S1 "$R" "git checkout README.md"
@@ -102,6 +139,39 @@ record S1 "$R" "git checkout main -- README.md"
 ok "file checkout does not accept"         [ "$(rec_of "$R" S1)" = main ]
 record S1 "$R" "git -C $O switch -c elsewhere"
 ok "a switch in another repo does not accept" [ "$(rec_of "$R" S1)" = main ]
+record S1 "$R" "git checkout a README.md"
+record S1 "$R" "git checkout -p a"
+record S1 "$R" "git branch -m a a2"
+record S1 "$R" "git switch nonexistent; git status"
+record S1 "$R" "git switch --help"
+ok "file restores, other renames, failed switches do not accept" [ "$(rec_of "$R" S1)" = main ]
+
+# --- the session's own moves are followed, however written (session S5)
+record S5 "$R" "pwd"
+g -C "$R" switch -c pr-5
+record S5 "$R" "gh pr checkout 5"
+ok "a bare gh pr checkout records"         [ "$(rec_of "$R" S5)" = pr-5 ]
+g -C "$R" switch -c feat
+record S5 "$R" "$(printf "git switch -c feat && cat > f <<'EOF'\ndon't\nEOF")"
+ok "a switch beside an apostrophe heredoc records" [ "$(rec_of "$R" S5)" = feat ]
+g -C "$R" switch a
+record S5 "$R" "if true; then git switch a; fi"
+ok "a switch inside if/then records"       [ "$(rec_of "$R" S5)" = a ]
+g -C "$R" switch feat
+record S5 "$R" "bash -c 'git switch feat'"
+ok "a switch inside bash -c records"       [ "$(rec_of "$R" S5)" = feat ]
+g -C "$R" switch a
+record S5 "$R" "cd .. && git switch a"
+ok "a switch after cd .. records when the hook already sees the cd" [ "$(rec_of "$R" S5)" = a ]
+g -C "$R" switch b
+
+# --- damaged records
+SESS0="$(git -C "$R" rev-parse --absolute-git-dir)/proof-sessions"
+: > "$SESS0/S6"
+record S6 "$R" "ls"
+ok "an empty record is treated as none"    [ "$(rec_of "$R" S6)" = b ]
+printf 'b\nextra\n' > "$SESS0/S7"
+ok "only a record's first line counts"     allowed S7 "$R" "git commit -m x"
 
 # --- accepting the switch
 record S1 "$R" "git switch b"
