@@ -67,7 +67,8 @@ Then, in any project, **on your own computer**:
 
 It reads the repo, asks what it cannot infer, and writes `.claude/harness.json`. It also
 adds a project settings file so Claude Code offers Proof to anyone who opens the project,
-creates the GitHub board and labels, and optionally sets up the nightly digest.
+creates the GitHub board and labels, and optionally sets up the nightly digest and the
+monthly retro.
 
 It also offers to **protect your main branch on GitHub**, with settings that work for one
 person: no deleting or force-pushing, every change through a pull request, **0 required
@@ -118,7 +119,7 @@ designed in another tool.
 |---|---|
 | `/proof-init` | Configure Proof for a project: the board, labels, and the GitHub features Proof uses (Issues, Discussions). Turns on what it can after asking; walks you through the rest. Once per project |
 | `/proof-plan` | What to work on next, in what order; re-check stale priorities; optional cleanup. Applies anything you ticked in the digest first |
-| `/proof-retro` | **How the work goes.** Monthly or after a release: shipped against plan, where work waited, estimates against reality, what keeps breaking, how often lessons repeated, whether goals moved. At most three process changes |
+| `/proof-retro` | **How the work goes.** Monthly or after a release: shipped against plan, where work waited, estimates against reality, what keeps breaking, how often lessons repeated, whether goals moved. Posted as a *Proof retro* issue with at most three process changes to tick. Can run by itself; see *The monthly retro* |
 | `/proof-design` | Establish a design system, wire it so the other skills obey it, or report drift |
 
 ## The one rule
@@ -295,7 +296,7 @@ guards are shell scripts. To use it with another assistant, such as Codex or Gem
 it this repo and ask it to turn the skills into its own commands and instruction files,
 and the guards into its own hooks, if it has them. Two parts won't carry over: the Claude
 Design routes in `/proof-spec`, `/proof-handoff` and `/proof-design`, and the nightly
-digest, which runs as a Claude Code routine.
+digest and monthly retro, which run as Claude Code routines.
 
 ## The nightly digest
 
@@ -312,6 +313,21 @@ decides anything itself.
   repositories, and a routine without them runs, reports success, and does nothing.
 - **A green run status only means it did not crash.** Confirm it worked by the digest
   appearing on the project's Proof digest issue.
+
+## The monthly retro
+
+Optionally, a second routine runs `/proof-retro` for you. It checks once a week and posts
+a retro about once a month, as a new **Proof retro: {month}** issue on your board, with up
+to three suggested changes to tick. Each weekly check applies what you have ticked:
+config changes arrive as one pull request for you to merge, and habit changes are marked
+acknowledged. Months with nothing closed or merged post nothing. It is separate from the
+nightly digest and changes nothing about it.
+
+`/proof-init` sets it up, and `/proof-retro` offers to when you run it yourself. The same
+two rules as the digest apply: create it on the Routines page with both repositories,
+and confirm it by its output (a retro issue, or a one-line "nothing due"), not by a green
+run. GitHub does not notify you about issues from your own account, so the retro shows
+up on your board and issue list, not as a notification.
 
 ## Guardrails
 
@@ -339,7 +355,8 @@ skills/            the eleven commands, plus _partials/ shared by them
 agents/            the four reviewers, and the builder
 hooks/             hooks.json
 scripts/           board.sh, setup-board.sh, hooks/
-templates/         harness.json (per-project config), nightly-prompt.md (routine prompt)
+templates/         harness.json (per-project config), nightly-prompt.md and retro-prompt.md
+                   (routine prompts)
 tests/             regression cases for the guards, and a check on skill models
 DECISIONS.md       why Proof is built the way it is, and the traps found along the way
 ```
