@@ -36,7 +36,9 @@ This is what makes "apply now" work: tick boxes on your phone, open a session, r
 ## 1. Gather
 
 - Every open issue: title, labels, stage on the board, last activity, and its Priority
-  section if it has one
+  section if it has one. Leave out Proof's own reports, the **Proof digest** issue and
+  any retro issue (labelled `proof-retro`, or titled `Proof retro:`): they are logs, not
+  work, and are never rated or recommended
 - What is in flight: anything In Dev or In Review, and any open PRs
 - What shipped recently, and what learnings were recorded since the last plan — both are
   the usual reasons a rating has gone stale
@@ -152,6 +154,9 @@ applies what was ticked — **it never decides anything on the user's behalf.**
 First, check the project repository for activity by its owner in the last 24 hours:
 commits pushed to any branch, pull requests or issues opened, updated, commented on or
 relabelled, **or** ticked-but-unapplied items in the digest (ticking counts as working).
+The retro routine also acts as the owner, so leave out everything on retro issues
+(titled `Proof retro:`), and commits and pull requests on `{branch.prefix}retro-`
+branches: from GitHub's side, its edits and the user's ticks look the same.
 
 If there is none, **stop immediately.** Post nothing and end with one line: "No activity
 — nothing posted." A quiet night is the correct outcome, not a failure.

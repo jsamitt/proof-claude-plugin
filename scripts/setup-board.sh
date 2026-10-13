@@ -371,11 +371,14 @@ color_for() {
   case "$1" in
     ready-to-dev) echo 0E8A16 ;; in-progress) echo FBCA04 ;; discovered) echo C5DEF5 ;;
     blocked) echo B60205 ;; P1) echo D73A4A ;; P2) echo F9A03F ;; P3) echo BFD4F2 ;;
-    needs-investigation) echo 8250DF ;; needs-design) echo D4C5F9 ;; *) echo EDEDED ;;
+    needs-investigation) echo 8250DF ;; needs-design) echo D4C5F9 ;; proof-retro) echo 5319E7 ;;
+    *) echo EDEDED ;;
   esac
 }
 EXISTING_LABELS="$(gh label list --limit 200 --json name -q '.[].name' 2>/dev/null)"
-for l in ${LABELS[@]+"${LABELS[@]}"} bug feature chore; do
+# proof-retro marks the monthly retro issues /proof-retro opens (a Proof name, not a
+# project fact, like the "Proof digest" title).
+for l in ${LABELS[@]+"${LABELS[@]}"} bug feature chore proof-retro; do
   if grep -qxF "$l" <<<"$EXISTING_LABELS"; then
     say "  exists: $l"
   else
