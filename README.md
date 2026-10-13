@@ -388,3 +388,7 @@ Validation passing is not enough on its own, and neither is one machine: Claude 
 versions check plugins differently. Keep `plugin.json` to metadata only — see
 `DECISIONS.md` for the two times naming a standard folder broke the plugin.
 
+
+## License
+
+MIT. See [LICENSE](LICENSE).
