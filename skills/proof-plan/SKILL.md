@@ -155,8 +155,8 @@ First, check the project repository for activity by its owner in the last 24 hou
 commits pushed to any branch, pull requests or issues opened, updated, commented on or
 relabelled, **or** ticked-but-unapplied items in the digest (ticking counts as working).
 The retro routine also acts as the owner, so leave out everything on retro issues
-(titled `Proof retro:`) and pull requests from `{branch.prefix}retro-` branches: from
-GitHub's side, its edits and the user's ticks look the same.
+(titled `Proof retro:`), and commits and pull requests on `{branch.prefix}retro-`
+branches: from GitHub's side, its edits and the user's ticks look the same.
 
 If there is none, **stop immediately.** Post nothing and end with one line: "No activity
 — nothing posted." A quiet night is the correct outcome, not a failure.
