@@ -184,7 +184,12 @@ work is never closed, and a Discussion never supersedes an issue.
 **Gotcha:** GitHub's built-in *Item closed* workflow moves every closed issue to the last
 stage, so a duplicate closed by this check, by plan's cleanup or from the digest showed
 up as **Shipped**. Anything closed without shipping is now archived off the board
-(`board_archive`) in the same step.
+(`board_archive`) in the same step. `/proof-init` also offers to delete that workflow and
+*Pull request merged*. Where they are gone (every board Proof has set up so far), nothing
+moves an issue to Shipped except `/proof-ship`'s close-out, so an issue whose PR merged
+waits at In Review until then. That is by design: a card reaches Shipped when it ships,
+not when it merges (amended 2026-10-13, after #12 sat at In Review and was mistaken for a
+broken board).
 
 ## 2026-09-24 — The every-issue skills form a chain that always asks
 
