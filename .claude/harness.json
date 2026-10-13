@@ -92,7 +92,7 @@
         "run": null
       },
       {
-        "name": "Users pick it up with `claude plugin update proof@proof` (cloud sessions and the digest fetch it fresh) — no deploy",
+        "name": "Users pick it up with `claude plugin update proof@proof` (cloud sessions and the digest fetch it fresh) — no deploy. In each project that pins Proof, also run `claude plugin update proof@proof --scope project` from inside that project, then restart Claude",
         "run": null
       }
     ],
