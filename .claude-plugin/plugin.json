@@ -7,7 +7,7 @@
   },
   "homepage": "https://github.com/jsamitt/proof-claude-plugin",
   "repository": "https://github.com/jsamitt/proof-claude-plugin",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "keywords": [
     "workflow",
     "solo",
