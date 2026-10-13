@@ -19,6 +19,9 @@
 #     Everything else in a chained command is checked together, so a
 #     dangerous part hidden after && or ; is still caught.
 #
+# Also refuses a commit or push when the branch was moved under this session
+# (session-branch.sh check), before anything is set aside.
+#
 # Must run on macOS's stock bash 3.2 — no mapfile, no associative arrays.
 # Regression cases: tests/pre-bash-guard.test.sh
 # ============================================================================
@@ -43,6 +46,12 @@ print(json.dumps({"hookSpecificOutput":{"hookEventName":"PreToolUse",
   "permissionDecision":"ask","permissionDecisionReason":sys.argv[1]}}))' "$1"
   exit 0
 }
+
+# Branch moved under this session (another session, or a manual switch)?
+# Checked on the raw command, before git commit parts are set aside below —
+# a commit is exactly what this protects. See session-branch.sh.
+moved="$(printf '%s' "$INPUT" | bash "$(dirname "$0")/session-branch.sh" check 2>/dev/null)"
+[ -n "$moved" ] && deny "$moved"
 
 # Split on && || ; and newlines (not on |, so a pipe into a database tool stays
 # with what feeds it), drop the parts that only record text, rejoin the rest.

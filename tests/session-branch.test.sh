@@ -65,6 +65,9 @@ ok "refusal names the current branch"      grep -q "'b'" <<<"$msg"
 ok "refusal names the recorded branch"     grep -q "'main'" <<<"$msg"
 ok "refusal says how to accept"            grep -q 'git switch b' <<<"$msg"
 ok "refusal says to ask, not switch back"  grep -qi 'ask the user' <<<"$msg"
+ok "the bash guard refuses it"             grep -q '"deny"' <<<"$(guard S1 "$R" 'git commit -m "x"')"
+ok "the bash guard refuses a chained push" grep -q '"deny"' <<<"$(guard S1 "$R" 'git add -A && git push')"
+ok "the bash guard passes other commands"  [ -z "$(guard S1 "$R" 'git status')" ]
 
 # --- mentioning is not running
 ok "echo mentioning git push passes"       allowed S1 "$R" 'echo "remember to git push"'
