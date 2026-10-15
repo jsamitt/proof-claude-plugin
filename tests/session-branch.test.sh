@@ -137,6 +137,9 @@ ok "checkout with 2>&1 then commit: allowed" allowed S1 "$R" "git checkout a 2>&
 ok "checkout with >/dev/null 2>&1 then commit: allowed" allowed S1 "$R" "git checkout a >/dev/null 2>&1 && git commit -m x"
 ok "checkout of \$BR then commit: allowed"  allowed S1 "$R" 'git checkout "$BR" && git commit -m x'
 ok "arithmetic << does not hide a later commit" refused S1 "$R" "$(printf 'echo $((1<<2))\ngit commit -m x')"
+ok "arithmetic << n does not hide a later push" refused S1 "$R" "$(printf 'echo $((1<<n))\ngit status\ngit push\nn')"
+ok "(( x << y )) does not hide a later push" refused S1 "$R" "$(printf '(( x << y ))\ngit push\ny')"
+ok "a \$'it\\'s' string does not hide a heredoc" allowed S1 "$R" "$(printf "echo \$'it\\\\'s'\ncat > f <<EOF\ngit push origin HEAD\nEOF\ngit status")"
 ok "<< inside quotes does not hide a later commit" refused S1 "$R" "$(printf 'echo "a <<EOF"\ngit commit -m x')"
 ok "<< in a grep pattern does not hide a later commit" refused S1 "$R" "$(printf "git log --grep '<<x'\ngit commit -m x")"
 ok "a backslash-quoted heredoc body is not run" allowed S1 "$R" "$(printf 'cat <<\\EOF\ngit push\nEOF')"

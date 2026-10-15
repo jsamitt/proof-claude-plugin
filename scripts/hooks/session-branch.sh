@@ -96,18 +96,36 @@ def heredocs_in(line, stack):
         if top == "'":
             if c == "'":
                 stack.pop()
+        elif top == "$'":   # $'...': a backslash escapes, \' included
+            if c == "\\":
+                i += 1
+            elif c == "'":
+                stack.pop()
+        elif top == "((":   # arithmetic: << is a shift, not a heredoc
+            if line.startswith("))", i):
+                stack.pop()
+                i += 1
         elif top == '"':
             if c == "\\":
                 i += 1
             elif c == '"':
                 stack.pop()
+            elif line.startswith("$((", i):
+                stack.append("((")
+                i += 2
             elif line.startswith("$(", i):
                 stack.append("(")
                 i += 1
         elif c == "\\":
             i += 1
+        elif line.startswith("$'", i):
+            stack.append("$'")
+            i += 1
         elif c in "'\"":
             stack.append(c)
+        elif line.startswith("$((", i) or line.startswith("((", i):
+            stack.append("((")
+            i += 2 if c == "$" else 1
         elif line.startswith("$(", i):
             stack.append("(")
             i += 1
