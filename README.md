@@ -339,18 +339,26 @@ up on your board and issue list, not as a notification.
 
 ## Guardrails
 
-Four hooks, all cheap, all on by default except the last:
+Five hooks, all cheap, all on by default except verify on stop:
 
 | Hook | Blocks |
 |---|---|
 | Bash guard | **Refuses** `rm -rf` on a root, force-push, push straight to main, `reset --hard`, writing `.env`, wiping a remote database, `DROP DATABASE`. **Asks you** before dropping or emptying a table, deleting every row, pushing migrations to the live database, or discarding uncommitted work |
 | Write guard | Secrets, keys, lockfiles, and anything in `protected_paths` |
+| Branch check | **Refuses** a commit or push when the folder is on a branch this session didn't put it on: another Claude session in the same folder, or a manual switch, moved it. Claude asks you which branch the work belongs on rather than switching back. If the new branch is right, `git switch <that branch>` accepts it and the next commit goes through |
 | Verify on stop | Finishing while `verify.steps` fail (opt-in per project) |
 | Compaction archive | Nothing — it saves the transcript before it is summarised |
 
 Database rules only fire when a database tool is actually run, and a commit message
 that *mentions* a dangerous command is not refused — but a dangerous command chained after
 one still is. The cases live in `tests/pre-bash-guard.test.sh`.
+
+The branch check remembers each session's branch (in `.git/proof-sessions/`, never
+committed) on its first command, and after that only when it switches itself, so a
+routine `git status` after another session's switch never accepts it. Commands aimed at
+another folder, through `cd` or `git -C`, are not checked. Git run from inside a script,
+alias or shell function isn't seen: a branch moved that way is refused once, and
+`git switch <branch>` accepts it. The cases live in `tests/session-branch.test.sh`.
 
 Guards are narrow on purpose. One that fires on ordinary work gets switched off, and
 then it guards nothing.
@@ -379,7 +387,7 @@ Before merging, install the branch and check that everything loads:
 ```bash
 claude plugin validate .claude-plugin/plugin.json
 claude plugin marketplace add /path/to/your/checkout && claude plugin install proof@proof
-claude plugin details proof     # expect 11 skills, 5 agents, 3 hook events
+claude plugin details proof     # expect 11 skills, 5 agents, 5 hook events
 for t in tests/*.test.sh; do bash "$t"; done   # expect 0 failed in each
 claude plugin list              # expect "Status: enabled" for proof
 ```
