@@ -41,7 +41,7 @@ P="$TMP/proj"; WT="$P/.claude/worktrees/w1"; OUT="$TMP/elsewhere"
 mkdir -p "$P/sub" "$WT/src" "$OUT"
 
 installs() {  # scope:version[:projectPath] ...  (installed at $PLUGIN unless the version differs)
-  python3 - "$INSTALLED" "$PLUGIN" "$@" <<'EOF'
+  python3 -I - "$INSTALLED" "$PLUGIN" "$@" <<'EOF'
 import json, os, sys
 out, plugin, specs = sys.argv[1], sys.argv[2], sys.argv[3:]
 entries = []
@@ -58,7 +58,7 @@ json.dump({"version": 2, "plugins": {"proof@proof": entries,
 EOF
 }
 market() {  # source repo
-  python3 -c 'import json,sys; json.dump({"proof":{"source":{"source":sys.argv[2],"repo":sys.argv[3]}},
+  python3 -I -c 'import json,sys; json.dump({"proof":{"source":{"source":sys.argv[2],"repo":sys.argv[3]}},
 "other":{"source":{"source":"github","repo":"x/y"}}}, open(sys.argv[1],"w"))' "$MARKETS" "$1" "$2"
 }
 release() {  # repo version — what that repo's default branch says
@@ -69,13 +69,13 @@ DATA="$TMP/data/0"; n=0
 fresh() { n=$((n+1)); DATA="$TMP/data/$n"; }   # a new machine-day: no cache, nothing skipped
 
 run() {  # source cwd [path prefix] — the hook's output
-  python3 -c 'import json,sys; print(json.dumps({"session_id":"s","hook_event_name":"SessionStart","source":sys.argv[1],"cwd":sys.argv[2]}))' "$1" "$2" |
+  python3 -I -c 'import json,sys; print(json.dumps({"session_id":"s","hook_event_name":"SessionStart","source":sys.argv[1],"cwd":sys.argv[2]}))' "$1" "$2" |
     PATH="${3:-$TMP/bin}:$PATH" CLAUDE_PLUGIN_ROOT="${ROOT_OVERRIDE:-$PLUGIN}" CLAUDE_PLUGIN_DATA="$DATA" \
     PROOF_INSTALLED_PLUGINS="$INSTALLED" PROOF_KNOWN_MARKETPLACES="$MARKETS" \
     PROOF_LATEST_URL="file://$GH/{repo}/plugin.json" bash "$HOOK"
 }
 context() {  # the additionalContext the hook gave, or nothing
-  python3 -c 'import json,sys
+  python3 -I -c 'import json,sys
 t=sys.stdin.read().strip()
 if t:
     d=json.loads(t)["hookSpecificOutput"]
@@ -141,7 +141,7 @@ ok "same day: no second lookup"               [ "$(calls)" = 1 ]
 ok "same day: the saved answer still offers"  has "$o" "Proof 0.11.0 is available"
 release jsamitt/proof-claude-plugin 0.12.0
 ok "same day: a release since is not seen yet" has "$(offer startup "$OUT")" "Proof 0.11.0 is available"
-python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["date"]="2000-01-01"; json.dump(d,open(p,"w"))' "$DATA/update-check.json"
+python3 -I -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["date"]="2000-01-01"; json.dump(d,open(p,"w"))' "$DATA/update-check.json"
 ok "next day: looks it up again"              has "$(offer startup "$OUT")" "Proof 0.12.0 is available"
 ok "next day: one more lookup"                [ "$(calls)" = 2 ]
 rm -f "$GH/jsamitt/proof-claude-plugin/plugin.json"
@@ -161,8 +161,8 @@ ok "skipped version: nothing on another day"  nothing startup "$OUT"
 release jsamitt/proof-claude-plugin 0.12.0
 rm -f "$DATA/update-check.json"
 ok "a newer version is offered"               has "$(offer startup "$OUT")" "Proof 0.12.0 is available"
-ok "a bad skip is refused"                    bash -c "! bash '$HOOK' skip relative user 0.12.0 2>/dev/null"
-ok "a bad skip version is refused"            bash -c "! bash '$HOOK' skip '$DATA' user 'x; rm' 2>/dev/null"
+ok "a bad skip is refused"                    bash -c "! bash '$HOOK' skip relative user 0.12.0 >/dev/null 2>&1"
+ok "a bad skip version is refused"            bash -c "! bash '$HOOK' skip '$DATA' user 'x; rm' >/dev/null 2>&1"
 
 # --- project and worktree installs: their own version, their own command
 release jsamitt/proof-claude-plugin 0.11.0
@@ -208,6 +208,49 @@ echo 'nope' > "$MARKETS"
 fresh; ok "malformed marketplace record: nothing" nothing startup "$OUT"
 market github jsamitt/proof-claude-plugin
 fresh; ok "malformed hook input: nothing"     bash -c "echo '{' | CLAUDE_PLUGIN_ROOT='$PLUGIN' CLAUDE_PLUGIN_DATA='$DATA' bash '$HOOK' | grep -q . && exit 1 || exit 0"
+
+# --- review round 1: the project folder can't run code; hostile or odd records stay safe
+installs user:0.10.0; market github jsamitt/proof-claude-plugin; release jsamitt/proof-claude-plugin 0.11.0
+EVIL="$TMP/evil repo"; mkdir -p "$EVIL"
+for mod in json re time signal subprocess; do
+  printf 'open(%s, "w").write("ran")\n' "'$TMP/RAN_$mod'" > "$EVIL/$mod.py"
+done
+fresh; o="$(cd "$EVIL" && offer startup "$EVIL")"
+ok "a json.py (etc.) in the folder is not run"  [ -z "$(ls "$TMP" | grep '^RAN_')" ]
+ok "and the offer still works there"            has "$o" "Proof 0.11.0 is available"
+(cd "$EVIL" && bash -c "$(skip_cmd "$o")" >/dev/null)
+ok "skip from that folder doesn't run it either" [ -z "$(ls "$TMP" | grep '^RAN_')" ]
+
+python3 -I - "$INSTALLED" "$PLUGIN" <<'PYK'
+import json, sys
+json.dump({"version": 2, "plugins": {"proof;touch PWNED;x@proof": [
+    {"scope": "user", "version": "0.10.0", "installPath": sys.argv[2]}]}}, open(sys.argv[1], "w"))
+PYK
+fresh; ok "a plugin key with shell characters: nothing" nothing startup "$OUT"
+installs user:0.10.0
+
+printf '{"version": "0.11.0\\n"}' > "$GH/jsamitt/proof-claude-plugin/plugin.json"
+fresh; o="$(offer startup "$OUT")"
+ok "a version with a stray newline is shown clean" has "$o" "Proof 0.11.0 is available (this"
+ok "and its skip command is clean"              [ "$(skip_cmd "$o" | grep -c .)" = 1 ]
+bash -c "$(skip_cmd "$o")" >/dev/null
+ok "and skipping it holds"                      nothing startup "$OUT"
+printf '{"version": "\xd9\xa0.\xd9\xa1\xd9\xa1.\xd9\xa0"}' > "$GH/jsamitt/proof-claude-plugin/plugin.json"
+fresh; ok "non-ASCII digits: nothing"           nothing startup "$OUT"
+python3 -I -c 'import json,sys; json.dump({"version":"0.11.0","pad":"x"*100000}, open(sys.argv[1],"w"))' "$GH/jsamitt/proof-claude-plugin/plugin.json"
+fresh; ok "a plugin.json over 64 KB: nothing"   nothing startup "$OUT"
+release jsamitt/proof-claude-plugin 0.11.0
+
+fresh; mkdir -p "$(dirname "$DATA")"; : > "$DATA"; rm -f "$TMP/curl.log"
+run startup "$OUT" >/dev/null; run startup "$OUT" >/dev/null
+ok "data folder can't be written: no lookups at all" [ "$(calls)" = 0 ]
+
+FIFO="$TMP/records.fifo"; mkfifo "$FIFO"
+SAVED="$INSTALLED"; INSTALLED="$FIFO"
+fresh; start=$SECONDS
+ok "a record that never answers: nothing"       nothing startup "$OUT"
+ok "and the check gives up within 6 seconds"    [ $((SECONDS - start)) -le 6 ]
+INSTALLED="$SAVED"
 
 # --- the data stays out of the repo
 g() { git -c user.name=t -c user.email=t@example.com -c init.defaultBranch=main "$@" >/dev/null 2>&1; }
