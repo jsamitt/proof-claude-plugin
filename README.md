@@ -88,6 +88,25 @@ claude plugin update proof@proof
 Then restart Claude Code. Cloud sessions and the nightly digest download a fresh copy
 each time, so they need nothing.
 
+You don't have to remember. When a newer Proof is released, the first new session in a
+project whose Proof is behind opens Claude's first reply with one line, such as
+*"Proof 0.11.0 is available (this project has 0.10.0). Update now?"*, and then carries
+on with what you asked. It checks the install that project actually runs: a project or
+worktree with its own install gets its own offer, and that install is the one updated.
+
+- **Yes:** Claude runs the update for that install (`claude plugin update proof@proof`,
+  or `claude plugin update proof@proof --scope project` from the project or worktree
+  folder) and tells you to restart Claude Code. The new version only runs after the
+  restart.
+- **Not now:** that version is never offered again for that install. The next release
+  is offered as normal.
+
+The latest version is read from the GitHub repo you added the marketplace from, at most
+once a day per machine, with a 3-second limit. Offline, slow, failing or up to date, you
+see nothing and the session starts as usual. Resumed, cleared and compacted sessions are
+never interrupted. The day's answer and the versions you turned down are kept in Claude
+Code's plugin data folder, outside every repo.
+
 
 ## Commands
 
@@ -339,7 +358,7 @@ up on your board and issue list, not as a notification.
 
 ## Guardrails
 
-Five hooks, all cheap, all on by default except verify on stop:
+Six hooks, all cheap, all on by default except verify on stop:
 
 | Hook | Blocks |
 |---|---|
@@ -348,6 +367,7 @@ Five hooks, all cheap, all on by default except verify on stop:
 | Branch check | **Refuses** a commit or push when the folder is on a branch this session didn't put it on: another Claude session in the same folder, or a manual switch, moved it. Claude asks you which branch the work belongs on rather than switching back. If the new branch is right, `git switch <that branch>` accepts it and the next commit goes through |
 | Verify on stop | Finishing while `verify.steps` fail (opt-in per project) |
 | Compaction archive | Nothing — it saves the transcript before it is summarised |
+| Update check | Nothing — on a new session, offers a newer Proof when this project's install is behind (see *Updating*) |
 
 Database rules only fire when a database tool is actually run, and a commit message
 that *mentions* a dangerous command is not refused — but a dangerous command chained after
@@ -359,6 +379,9 @@ routine `git status` after another session's switch never accepts it. Commands a
 another folder, through `cd` or `git -C`, are not checked. Git run from inside a script,
 alias or shell function isn't seen: a branch moved that way is refused once, and
 `git switch <branch>` accepts it. The cases live in `tests/session-branch.test.sh`.
+
+The update check's cases, including the command for user, project and worktree installs,
+live in `tests/update-check.test.sh`.
 
 Guards are narrow on purpose. One that fires on ordinary work gets switched off, and
 then it guards nothing.
@@ -387,7 +410,7 @@ Before merging, install the branch and check that everything loads:
 ```bash
 claude plugin validate .claude-plugin/plugin.json
 claude plugin marketplace add /path/to/your/checkout && claude plugin install proof@proof
-claude plugin details proof     # expect 11 skills, 5 agents, 5 hook events
+claude plugin details proof     # expect 11 skills, 5 agents, 6 hook events
 for t in tests/*.test.sh; do bash "$t"; done   # expect 0 failed in each
 claude plugin list              # expect "Status: enabled" for proof
 ```
