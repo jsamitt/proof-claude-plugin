@@ -69,7 +69,9 @@
       "Skill and agent frontmatter must parse as YAML (quote any description containing \": \"); a parse error loads the skill with empty frontmatter and it silently stops being offered.",
       "Manifest changes (plugin.json, marketplace.json, hooks.json) can stop the plugin loading for every user on update; the version in plugin.json and marketplace.json must match.",
       "Proof carries no project facts: skills must never hardcode one project's commands, names or URLs — those belong in harness.json.",
-      "Scripts must run on macOS's bash 3.2."
+      "Scripts must run on macOS's bash 3.2.",
+      "A change to a stage, label, title, marker or file that one skill writes must be checked against every skill, script and routine that reads it. Search for the old name.",
+      "Every check, gate or routine must fail, or say so, when it did nothing. Green has to mean the job was done."
     ]
   },
   "models": {
