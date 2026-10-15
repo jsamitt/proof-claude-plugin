@@ -132,6 +132,16 @@ ok "gh pr merge --delete-branch then push: allowed" allowed S1 "$R" "gh pr merge
 ok "gh issue develop --checkout then push: allowed" allowed S1 "$R" "gh issue develop 3 --checkout && git push"
 ok "rebase onto a branch then push: allowed" allowed S1 "$R" "git rebase main a && git push"
 
+# --- review round 2: redirects, shell-filled names, things that only look like heredocs
+ok "checkout with 2>&1 then commit: allowed" allowed S1 "$R" "git checkout a 2>&1 && git commit -m x"
+ok "checkout with >/dev/null 2>&1 then commit: allowed" allowed S1 "$R" "git checkout a >/dev/null 2>&1 && git commit -m x"
+ok "checkout of \$BR then commit: allowed"  allowed S1 "$R" 'git checkout "$BR" && git commit -m x'
+ok "arithmetic << does not hide a later commit" refused S1 "$R" "$(printf 'echo $((1<<2))\ngit commit -m x')"
+ok "<< inside quotes does not hide a later commit" refused S1 "$R" "$(printf 'echo "a <<EOF"\ngit commit -m x')"
+ok "<< in a grep pattern does not hide a later commit" refused S1 "$R" "$(printf "git log --grep '<<x'\ngit commit -m x")"
+ok "a backslash-quoted heredoc body is not run" allowed S1 "$R" "$(printf 'cat <<\\EOF\ngit push\nEOF')"
+ok "commit message with quotes in a heredoc: refused" refused S1 "$R" "$(printf "git commit -m \"\$(cat <<'EOF'\nsay \"hi\" and don't\nEOF\n)\"")"
+
 # --- restoring a file is not a switch
 record S1 "$R" "git checkout README.md"
 record S1 "$R" "git checkout -- sub/f"
@@ -163,6 +173,22 @@ ok "a switch inside bash -c records"       [ "$(rec_of "$R" S5)" = feat ]
 g -C "$R" switch a
 record S5 "$R" "cd .. && git switch a"
 ok "a switch after cd .. records when the hook already sees the cd" [ "$(rec_of "$R" S5)" = a ]
+g -C "$R" switch b
+record S5 "$R" "git checkout b 2>&1 | tail -1"
+ok "a checkout with 2>&1 records"          [ "$(rec_of "$R" S5)" = b ]
+g -C "$R" switch a
+record S5 "$R" "git checkout a >/dev/null 2>&1"
+ok "a checkout with >/dev/null 2>&1 records" [ "$(rec_of "$R" S5)" = a ]
+g -C "$R" switch -c varbr
+record S5 "$R" 'BR=varbr; git switch -c "$BR"'
+ok "a switch to \$BR records"               [ "$(rec_of "$R" S5)" = varbr ]
+g -C "$R" switch a
+g -C "$R" switch varbr
+record S5 "$R" "git switch @{-1}"
+ok "a switch to @{-1} records"             [ "$(rec_of "$R" S5)" = varbr ]
+g -C "$R" branch -m varbr varbr2
+record S5 "$R" "git branch -m varbr2 2>&1"
+ok "renaming the current branch with 2>&1 records" [ "$(rec_of "$R" S5)" = varbr2 ]
 g -C "$R" switch b
 
 # --- damaged records

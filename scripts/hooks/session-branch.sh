@@ -47,7 +47,8 @@ PREFIX_WORDS = ("then", "do", "else", "elif", "if", "while", "until", "{", "!", 
                 "command", "builtin", "exec", "nohup")
 WRAPPERS = ("env", "sudo", "xargs", "timeout")   # skipped along with their options
 SHELLS = ("bash", "sh", "zsh")
-HEREDOC = re.compile(r"(?<!<)<<(?!<)(-?)[ \t]*(['\"]?)([A-Za-z0-9_.-]+)\2")
+HEREDOC = re.compile(r"<<(?!<)(-?)[ \t]*\\?(['\"]?)([A-Za-z_][A-Za-z0-9_.-]*)\2(?=[\s;|&<>)]|$)")
+FD_REDIRECT = re.compile(r"(^|[\s;&|(])\d+(?=[<>])")   # the 2 in 2>&1
 TOPLEVEL = ("$PWD", "${PWD}", "$(pwd)", "$(git rev-parse --show-toplevel)")
 
 
@@ -62,8 +63,19 @@ def git(d, *args):
     return r.stdout.strip() or None
 
 
+_branches = {}
+
+
 def is_branch(d, name):
     """A local branch, or one git will create from a remote of the same name."""
+    if (d, name) not in _branches:
+        _branches[(d, name)] = _is_branch(d, name)
+    return _branches[(d, name)]
+
+
+def _is_branch(d, name):
+    if name == "HEAD":
+        return False
     try:
         if subprocess.call(["git", "-C", d, "show-ref", "--verify", "--quiet", "refs/heads/" + name],
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3) == 0:
@@ -74,10 +86,49 @@ def is_branch(d, name):
     return bool(remote) and name in remote.split("\n")
 
 
+def heredocs_in(line, stack):
+    """The heredoc operators on this line that the shell would act on: not
+    inside quotes or after a comment. `stack` carries quoting across lines
+    ("" top level, ' or " a quote, ( a $( ) substitution) and is updated."""
+    found, i, n = [], 0, len(line)
+    while i < n:
+        c, top = line[i], stack[-1]
+        if top == "'":
+            if c == "'":
+                stack.pop()
+        elif top == '"':
+            if c == "\\":
+                i += 1
+            elif c == '"':
+                stack.pop()
+            elif line.startswith("$(", i):
+                stack.append("(")
+                i += 1
+        elif c == "\\":
+            i += 1
+        elif c in "'\"":
+            stack.append(c)
+        elif line.startswith("$(", i):
+            stack.append("(")
+            i += 1
+        elif c == ")" and top == "(":
+            stack.pop()
+        elif c == "#" and (i == 0 or line[i - 1] in " \t"):
+            break
+        elif c == "<" and (i == 0 or line[i - 1] != "<"):
+            m = HEREDOC.match(line, i)
+            if m:
+                found.append((m.group(1) == "-", m.group(3)))
+                i = m.end()
+                continue
+        i += 1
+    return found
+
+
 def strip_heredocs(cmd):
     """Drop heredoc bodies and their end lines: they are data, not commands, and
     an apostrophe in one would otherwise break the parse."""
-    out, pending = [], []
+    out, pending, stack = [], [], [""]
     for line in cmd.split("\n"):
         if pending:
             dash, word = pending[0]
@@ -85,8 +136,7 @@ def strip_heredocs(cmd):
                 pending.pop(0)
             continue
         out.append(line)
-        for m in HEREDOC.finditer(line):
-            pending.append((m.group(1) == "-", m.group(3)))
+        pending.extend(heredocs_in(line, stack))
     return "\n".join(out)
 
 
@@ -156,6 +206,11 @@ def value_of(args, flags):
     return None
 
 
+def literal(name):
+    """A branch name as written, or None when the shell fills it in ($BR, @{-1})."""
+    return None if name is None or re.search(r"[$`*?\[]|@\{", name) else name
+
+
 def switch_info(sub, args, d, branch):
     """(moves the branch?, the branch it moves to, or None if it can't tell)."""
     if sub == "gh-switch":
@@ -166,36 +221,36 @@ def switch_info(sub, args, d, branch):
     if sub == "switch":
         new = value_of(args, ("-c", "-C", "--create", "--force-create", "--orphan"))
         if new:
-            return True, new
+            return True, literal(new)
         if any(a in ("-d", "--detach", "-t", "--track") for a in args) or not pos or pos[0] == "-":
             return True, None
-        return True, pos[0]
+        return True, literal(pos[0])
     if sub == "checkout":
         new = value_of(args, ("-b", "-B", "--orphan"))
         if new:
-            return True, new
+            return True, literal(new)
         if any(a in ("-t", "--track", "--detach") for a in args):
             return True, None
         if any(a in ("--", "-p", "--patch") for a in args) or len(pos) != 1:
             return False, None   # restoring files, not switching
-        if pos[0] == "-":
+        if pos[0] == "-" or literal(pos[0]) is None:
             return True, None
         return (True, pos[0]) if is_branch(d, pos[0]) else (False, None)
     if sub == "branch":
         if not any(a in ("-m", "-M", "--move") for a in args):
             return False, None
         if len(pos) == 1:
-            return True, pos[0]
+            return True, literal(pos[0])
         if len(pos) == 2:
             # Renames the current branch only if the old name is the current one:
             # before it runs that is `branch`; after, the new name is.
-            return (MODE == "record" or pos[0] == branch), pos[1]
+            return (MODE == "record" or pos[0] == branch or literal(pos[0]) is None), literal(pos[1])
         return False, None
     if sub == "rebase":
         onto = value_of(args, ("--onto",))
         if onto in pos:
             pos.remove(onto)
-        return (True, pos[1]) if len(pos) == 2 else (False, None)
+        return (True, literal(pos[1])) if len(pos) == 2 else (False, None)
     return False, None
 
 
@@ -237,7 +292,7 @@ class Walker:
         ("gh-switch") for gh commands that move the branch."""
         d = self.cwd if d is None else d
         subshells, pushed, prev = [], [], d
-        for words in commands(strip_heredocs(cmd).replace("\\\n", " ")):
+        for words in commands(FD_REDIRECT.sub(r"\1", strip_heredocs(cmd).replace("\\\n", " "))):
             if isinstance(words, tuple):
                 if words[0] == "(":
                     subshells.append(d)
