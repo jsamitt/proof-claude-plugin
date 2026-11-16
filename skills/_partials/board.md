@@ -27,6 +27,32 @@ board_set "$ITEM" "In Dev"        # value from board.stages
 | Blocked, waiting on the user | unchanged | +`blocked` |
 | Closed without shipping (duplicate, superseded, not planned) | off the board | −`ready`, −`in_progress` |
 
+The `shipped` stage means **merged to the default branch**, not released — `/proof-ship`
+is the separate release of already-merged work.
+
+## The merge → Shipped move happens off-skill
+
+The PR-merged → `shipped` transition is the one Proof cannot do in the moment: a merge
+happens on GitHub, **outside any skill run**, so no skill is present to move the card.
+Two mechanisms cover it, both set up by `/proof-init`:
+
+1. **The GitHub "Pull request merged" Project workflow** (primary) moves the card to the
+   `shipped` stage server-side the instant a PR merges — hands-free, every time. This is
+   why `/proof-init` keeps that workflow on and pointed at the shipped stage (and removes
+   only "Item closed", which misfires on every close).
+2. **`board_reconcile`** (backstop) sweeps any item still at `in_review` whose issue is
+   closed as completed and moves it to `shipped`. `/proof-ship` and `/proof-plan` call it,
+   so drift self-heals on the next skill run — eventual, not instant, which is why the
+   workflow is the primary fix.
+
+```bash
+board_reconcile    # after board_init; a no-op when nothing has merged
+```
+
+If issues keep sticking at `in_review` after you merge, the "Pull request merged" workflow
+is off or mis-targeted — re-run `scripts/setup-board.sh` and follow its
+`pr-merged-workflow` guidance.
+
 ## Closing without shipping
 
 GitHub's built-in *Item closed* workflow moves **every** closed issue to the last stage,

@@ -35,6 +35,16 @@ This is what makes "apply now" work: tick boxes on your phone, open a session, r
 
 ## 1. Gather
 
+First reconcile the board so its stages are current — a merge happens on GitHub, outside
+any skill run, so an already-merged issue can still read as In Review:
+
+```bash
+source "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh"
+board_init && board_reconcile
+```
+
+Then gather:
+
 - Every open issue: title, labels, stage on the board, last activity, and its Priority
   section if it has one. Leave out Proof's own reports, the **Proof digest** issue and
   any retro issue (labelled `proof-retro`, or titled `Proof retro:`): they are logs, not

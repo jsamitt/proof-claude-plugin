@@ -79,8 +79,16 @@ In order. For each: announce it, run it, show real output.
 
 ## 4. Close out
 
-Board → `shipped` for everything in this release. Comment the release, with its
-version, on each issue.
+First reconcile the board — a merge happens on GitHub, outside any skill run, so other
+already-merged issues may still be sitting at In Review:
+
+```bash
+source "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh"
+board_init && board_reconcile    # In Review → Shipped for anything already merged
+```
+
+Then set Board → `shipped` for everything in this release, and comment the release, with
+its version, on each issue.
 
 If there is store text, present it again now, ready to paste into the store's console —
 this is the moment it is needed. Nothing is committed here: the release PR already

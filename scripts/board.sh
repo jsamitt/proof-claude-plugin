@@ -149,3 +149,43 @@ board_archive() {
 #   board_stage in_dev  ->  "In Dev"
 # ---------------------------------------------------------------------------
 board_stage() { _cfg "board.stages.$1"; }
+
+# ---------------------------------------------------------------------------
+# board_reconcile — self-healing backstop for the In Review -> Shipped move.
+#
+# A merge happens on GitHub, outside any skill run, so the primary mover is the
+# project's "Pull request merged -> Shipped" built-in workflow (set up by
+# /proof-init). This sweeps anything that workflow missed — e.g. the workflow is
+# off, or a PR merged without a "Closes #n". Any item still at the in_review
+# stage whose issue is now closed as completed is moved to shipped. A close that
+# is "not planned" (duplicate / won't-do) is left alone for board_archive.
+# Safe to call from any board-touching skill; a no-op when nothing has merged.
+# ---------------------------------------------------------------------------
+board_reconcile() {
+  [ -n "${PROOF_PROJECT_NUMBER:-}" ] || { echo "board: call board_init first" >&2; return 1; }
+  local in_review shipped
+  in_review="$(board_stage in_review)"; shipped="$(board_stage shipped)"
+  [ -n "$in_review" ] && [ -n "$shipped" ] || { echo "board: in_review/shipped stage not configured" >&2; return 1; }
+
+  gh project item-list "$PROOF_PROJECT_NUMBER" --owner "$PROOF_PROJECT_OWNER" \
+      --limit 500 --format json 2>/dev/null \
+    | python3 -c '
+import json, sys
+in_review = sys.argv[1]
+for it in json.load(sys.stdin).get("items", []):
+    if it.get("status") != in_review:
+        continue
+    n = (it.get("content") or {}).get("number")
+    if n:
+        print(it["id"], n)
+' "$in_review" \
+    | while read -r iid num; do
+        state="$(gh issue view "$num" --json state,stateReason \
+                   -q '.state + "/" + (.stateReason // "")' 2>/dev/null)"
+        case "$state" in
+          CLOSED/*not_planned*) : ;;                     # non-ship close -> board_archive handles it
+          CLOSED/*) board_set "$iid" "$shipped" \
+                      && echo "board: #$num $in_review -> $shipped (PR merged)" >&2 ;;
+        esac
+      done
+}

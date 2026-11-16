@@ -136,14 +136,26 @@ confirmation.
    can create one. Steps: the link the script prints → Name: `Ideas`, Format:
    *Open-ended discussion* → Create. Re-run the script and confirm it reports the
    category present.
-3. **`DECIDE (done-workflows)`** — ask this next; you can also finish it yourself. The built-in *Item closed* and *Pull request merged* workflows move
-   cards to the shipped stage when a PR merges or an issue closes, which is before
-   `/proof-ship` has released anything. Offer three options:
-   - **Remove them now** (recommended; Proof moves cards itself): re-run the script with
-     `--remove-done-workflows`. Say plainly that this is **permanent**: GitHub's API
-     cannot recreate built-in workflows.
-   - **Turn them off by hand** (reversible): `<board>/workflows` → each one → toggle off.
-   - **Keep them.**
+3. **`ACTION NEEDED (pr-merged-workflow)` and `DECIDE (item-closed-workflow)`** — the two
+   built-in close/merge workflows, handled **oppositely**. The board's **Shipped** stage
+   means *merged to the default branch* (board.md: "PR merged → shipped"); `/proof-ship`
+   is the separate release of already-merged work. So:
+   - **"Pull request merged" → keep it ON, targeting the shipped stage.** A merge happens
+     on GitHub, **outside any skill run**, so this workflow is the only thing that moves a
+     card to Shipped reliably in the moment — without it, issues stick in In Review (the
+     exact failure this step prevents). The API cannot enable or retarget it, so if the
+     script reports it off (`ACTION NEEDED (pr-merged-workflow)`), walk the user through it
+     as its own step: `<board>/workflows` → **Pull request merged** → set Status to the
+     shipped stage → Save and turn on. On a board this script set up, the renamed
+     Done→Shipped option keeps an already-on workflow pointing at Shipped; the API can't
+     read the target, so ask the user to confirm it reads the shipped stage. Treat
+     `board_reconcile` (run by `/proof-ship` and `/proof-plan`) as the skill-side
+     backstop, not a replacement — it only sweeps on the next skill run, not at merge.
+   - **"Item closed" → offer to remove it.** It fires on *every* close — duplicates and
+     not-planned included — which is why `board_archive` exists to undo it. Remove it with
+     `--remove-done-workflows` (permanent; recommended, so only real merges reach Shipped),
+     or keep it if the user would rather lean on `board_archive`. Reversible alternative:
+     toggle it off at `<board>/workflows`.
 4. **`ACTION NEEDED (auto-add)`** or **`ACTION NEEDED (auto-add-filter)`**. Without
    auto-add, only issues a Proof skill touches reach the board; issues opened on the
    GitHub website or by other tools never do. Steps: `<board>/workflows` → *Auto-add to

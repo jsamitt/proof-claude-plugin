@@ -7,9 +7,11 @@
 #
 #   scripts/setup-board.sh                          # create / reconcile
 #   scripts/setup-board.sh --dry-run                # show what it would do
-#   scripts/setup-board.sh --remove-done-workflows  # also delete the built-in
-#       "Item closed" and "Pull request merged" workflows (PERMANENT: GitHub's
-#       API cannot recreate them). Only pass this after the user has agreed.
+#   scripts/setup-board.sh --remove-done-workflows  # delete the built-in
+#       "Item closed" workflow (it moves EVERY closed issue to the shipped
+#       stage, duplicates included; PERMANENT — GitHub's API cannot recreate
+#       it). KEEPS "Pull request merged", which is the In Review -> Shipped
+#       move Proof relies on. Only pass this after the user has agreed.
 #   scripts/setup-board.sh --enable-repo-features   # turn on the repository
 #       features Proof uses (Issues, Discussions) if they are off. A visible
 #       repo setting change: only pass this after the user has agreed.
@@ -322,20 +324,40 @@ if [ -n "${PROJECT_ID:-}" ]; then
     ACTIONS=1
   fi
 
-  # 4b. Built-ins that move cards to the old "Done" option (now the shipped
-  # stage) when a PR merges or an issue closes, i.e. before /proof-ship has
-  # released anything. Deleting is permanent, so only on explicit request.
-  DONE_WF="$(awk -F'\t' '($2=="Item closed" || $2=="Pull request merged") && $3=="true"' "$TMP/wf.tsv")"
-  if [ -n "$DONE_WF" ]; then
+  # 4b. The two built-in close/merge workflows, which Proof treats differently:
+  #
+  #   "Pull request merged"  — the In Review -> Shipped move the harness RELIES
+  #     on. A merge happens on GitHub, outside any skill run, so this workflow is
+  #     the only thing that moves the card reliably in the moment. On a board
+  #     this script set up, the renamed Done -> shipped option keeps it pointing
+  #     at the shipped stage. KEEP it on. The API cannot enable or retarget it,
+  #     so if it is off, guide the user. board_reconcile is the skill-side net.
+  #
+  #   "Item closed"  — fires on EVERY close (duplicate / not-planned included),
+  #     which is why board_archive exists to undo it. Offer to remove it; the
+  #     "Pull request merged" workflow already covers the move that matters.
+  SHIPPED_STAGE="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("board",{}).get("stages",{}).get("shipped","Shipped"))' "$CFG")"
+
+  PRM_ENABLED="$(awk -F'\t' '$2=="Pull request merged"{print $3}' "$TMP/wf.tsv" | head -1)"
+  if [ "$PRM_ENABLED" = "true" ]; then
+    say "  'Pull request merged' workflow is ON — merges move cards to the '$SHIPPED_STAGE' stage."
+    say "    (The API can't read its target status. On a Proof board the renamed Done->'$SHIPPED_STAGE' option keeps it pointing there; confirm at $BOARD_URL/workflows if unsure.)"
+  else
+    say "  ACTION NEEDED (pr-merged-workflow) — merges won't move cards to '$SHIPPED_STAGE' on their own, so issues stick in review:"
+    say "    $BOARD_URL/workflows → 'Pull request merged' → set Status to '$SHIPPED_STAGE' → Save and turn it on"
+    ACTIONS=1
+  fi
+
+  ITEM_CLOSED_WF="$(awk -F'\t' '$2=="Item closed" && $3=="true"' "$TMP/wf.tsv")"
+  if [ -n "$ITEM_CLOSED_WF" ]; then
     if [ "$REMOVE_DONE" = 1 ]; then
       while IFS=$'\t' read -r wid wname _; do
         run gh api graphql -f query='mutation($w:ID!){deleteProjectV2Workflow(input:{workflowId:$w}){deletedWorkflowId}}' \
           -f w="$wid" >/dev/null 2>&1 && say "  removed workflow: $wname" || say "  could not remove workflow: $wname"
-      done <<<"$DONE_WF"
+      done <<<"$ITEM_CLOSED_WF"
     else
-      say "  DECIDE (done-workflows) — these move cards to the shipped stage before anything ships:"
-      while IFS=$'\t' read -r _ wname _; do say "    • $wname"; done <<<"$DONE_WF"
-      say "    Remove: re-run with --remove-done-workflows (permanent), or turn them off at $BOARD_URL/workflows"
+      say "  DECIDE (item-closed-workflow) — 'Item closed' moves EVERY closed issue to '$SHIPPED_STAGE', duplicates and not-planned included (board_archive undoes that)."
+      say "    Remove: re-run with --remove-done-workflows (permanent), or turn it off at $BOARD_URL/workflows. Keeping it is fine if you rely on board_archive for non-ship closures."
     fi
   fi
 fi
